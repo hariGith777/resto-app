@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1767499395986" clover="3.2.0">
+  <project timestamp="1767499395987" name="All files">
+    <metrics statements="15" coveredstatements="15" conditionals="13" coveredconditionals="12" methods="5" coveredmethods="3" elements="33" coveredelements="30" complexity="0" loc="15" ncloc="15" packages="3" files="3" classes="3"/>
+    <package name="admin.areas">
+      <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+      <file name="getAreas.js" path="/Users/apple/Documents/Coco/resto-app/src/admin/areas/getAreas.js">
+        <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="common">
+      <metrics statements="3" coveredstatements="3" conditionals="1" coveredconditionals="0" methods="3" coveredmethods="1"/>
+      <file name="response.js" path="/Users/apple/Documents/Coco/resto-app/src/common/response.js">
+        <metrics statements="3" coveredstatements="3" conditionals="1" coveredconditionals="0" methods="3" coveredmethods="1"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="11" count="1" type="cond" truecount="0" falsecount="1"/>
+      </file>
+    </package>
+    <package name="staff">
+      <metrics statements="8" coveredstatements="8" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1"/>
+      <file name="login.js" path="/Users/apple/Documents/Coco/resto-app/src/staff/login.js">
+        <metrics statements="8" coveredstatements="8" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="9" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="10" count="3" type="stmt"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="21" count="3" type="cond" truecount="4" falsecount="0"/>
+      </file>
+    </package>
+  </project>
+</coverage>

@@ -1,0 +1,38 @@
+{
+  "name": "resto-app",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "APIs for Resto application using AWS Lambda",
+  "main": "src/handlers/index.js",
+  "scripts": {
+    "test": "jest",
+    "deploy": "serverless deploy"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "nodejs"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1000.0",
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.16.3",
+    "serverless-offline": "^13.6.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "babel-jest": "^30.2.0",
+    "eslint": "^9.39.2",
+    "jest": "^27.0.0",
+    "prettier": "^3.7.4",
+    "serverless": "^3.39.0"
+  }
+}

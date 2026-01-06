@@ -1,0 +1,152 @@
+service: restaurant-platform-api
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1
+  stage: dev
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    JWT_SECRET: ${env:JWT_SECRET}
+    DB_SSL_CA: prod-ca-2021.crt
+package:
+  include: 
+    - prod-ca-2021.crt
+  exclude:
+    - .git/**
+    - .gitignore
+    - .env
+    - tests/**
+    - scripts/**
+    - db/**
+    - .md
+    - node_modules/.bin/**
+    - node_modules/serverless/**
+    - node_modules/.package-lock.json
+functions:
+  # Health Check
+  healthCheck:
+    handler: src/public/health.handler
+    events:
+      - httpApi:
+          path: /health
+          method: get
+
+  # Super Admin Authentication
+  superAdminLogin:
+    handler: src/super-admin//login.handler
+    events:
+      - httpApi:  
+          path: /super-admin/login
+          method: post
+
+  createRestaurant:
+    handler: src/super-admin/createRestaurant.handler
+    events:
+      - httpApi:
+          path: /super-admin/createRestaurant
+          method: post
+  
+  # Staff Authentication
+  staffLogin:
+    handler: src/staff/login.handler
+    events:
+      - httpApi:
+          path: /staff/login
+          method: post
+  
+  # Staff - Active Tables
+  getActiveTables:
+    handler: src/staff/activeTables.handler
+    events:
+      - httpApi:
+          path: /staff/active-tables
+          method: get
+  
+  # OTP Flow - Public Endpoints
+  startSession:
+    handler: src/public/qr/startSession.handler
+    events:
+      - httpApi:
+          path: /public/qr/session/start
+          method: post
+  
+  initiateCustomer:
+    handler: src/public/customer/initiate.handler
+    events:
+      - httpApi:
+          path: /public/customer/initiate
+          method: post
+  
+  verifyOtp:
+    handler: src/public/customer/verifyOtp.handler
+    events:
+      - httpApi:
+          path: /public/customer/verify-otp
+          method: post
+  
+  # OTP Flow - Staff Endpoints
+  generateOtp:
+    handler: src/staff/otp/generate.handler
+    events:
+      - httpApi:
+          path: /staff/otp/generate
+          method: post
+  
+  # Menu - Public Endpoints
+  getMenuCategories:
+    handler: src/public/menu/getCategories.handler
+    events:
+      - httpApi:
+          path: /public/menu/categories
+          method: get
+  
+  getMenuItems:
+    handler: src/public/menu/getItems.handler
+    events:
+      - httpApi:
+          path: /public/menu/items
+          method: get
+  
+  # Order - Public Endpoints
+  placeOrder:
+    handler: src/public/order/placeOrder.handler
+    events:
+      - httpApi:
+          path: /public/order/place
+          method: post
+  
+  getOrder:
+    handler: src/public/order/getOrder.handler
+    events:
+      - httpApi:
+          path: /public/order/{orderId}
+          method: get
+  
+  # Kitchen - Order Status Management
+  getKitchenOrders:
+    handler: src/kitchen/getOrders.handler
+    events:
+      - httpApi:
+          path: /kitchen/orders
+          method: get
+  
+  updateOrderStatus:
+    handler: src/kitchen/updateOrderStatus.handler
+    events:
+      - httpApi:
+          path: /kitchen/order/{orderId}/status
+          method: patch
+  
+  # Admin Endpoints
+  getAreas:
+    handler: src/admin/areas/getAreas.handler
+    events:
+      - httpApi:
+          path: /admin/areas
+          method: get  
+  getTables:
+    handler: src/admin/tables/getTables.handler
+    events:
+      - httpApi:
+          path: /admin/tables
+          method: get

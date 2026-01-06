@@ -1,0 +1,2894 @@
+{
+  "service": {
+    "service": "restaurant-platform-api",
+    "serviceObject": {
+      "name": "restaurant-platform-api"
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs20.x",
+      "region": "ap-south-1",
+      "stage": "dev",
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+        "JWT_SECRET": "dev_secret_for_tests",
+        "DB_SSL_CA": "prod-ca-2021.crt"
+      },
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "HealthCheckLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-healthCheck"
+            }
+          },
+          "SuperAdminLoginLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-superAdminLogin"
+            }
+          },
+          "CreateRestaurantLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-createRestaurant"
+            }
+          },
+          "StaffLoginLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-staffLogin"
+            }
+          },
+          "GetActiveTablesLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-getActiveTables"
+            }
+          },
+          "StartSessionLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-startSession"
+            }
+          },
+          "InitiateCustomerLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-initiateCustomer"
+            }
+          },
+          "VerifyOtpLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-verifyOtp"
+            }
+          },
+          "GenerateOtpLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-generateOtp"
+            }
+          },
+          "GetMenuCategoriesLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-getMenuCategories"
+            }
+          },
+          "GetMenuItemsLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-getMenuItems"
+            }
+          },
+          "PlaceOrderLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-placeOrder"
+            }
+          },
+          "GetOrderLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-getOrder"
+            }
+          },
+          "GetKitchenOrdersLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-getKitchenOrders"
+            }
+          },
+          "UpdateOrderStatusLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-updateOrderStatus"
+            }
+          },
+          "GetAreasLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-getAreas"
+            }
+          },
+          "GetTablesLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/restaurant-platform-api-dev-getTables"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "restaurant-platform-api",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/restaurant-platform-api-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/restaurant-platform-api-dev*:*:*"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "restaurant-platform-api",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "HealthCheckLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/health.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-healthCheck",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "HealthCheckLogGroup"
+            ]
+          },
+          "SuperAdminLoginLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/super-admin//login.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-superAdminLogin",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "SuperAdminLoginLogGroup"
+            ]
+          },
+          "CreateRestaurantLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/super-admin/createRestaurant.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-createRestaurant",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "CreateRestaurantLogGroup"
+            ]
+          },
+          "StaffLoginLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/staff/login.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-staffLogin",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "StaffLoginLogGroup"
+            ]
+          },
+          "GetActiveTablesLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/staff/activeTables.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-getActiveTables",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetActiveTablesLogGroup"
+            ]
+          },
+          "StartSessionLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/qr/startSession.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-startSession",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "StartSessionLogGroup"
+            ]
+          },
+          "InitiateCustomerLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/customer/initiate.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-initiateCustomer",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "InitiateCustomerLogGroup"
+            ]
+          },
+          "VerifyOtpLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/customer/verifyOtp.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-verifyOtp",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "VerifyOtpLogGroup"
+            ]
+          },
+          "GenerateOtpLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/staff/otp/generate.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-generateOtp",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GenerateOtpLogGroup"
+            ]
+          },
+          "GetMenuCategoriesLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/menu/getCategories.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-getMenuCategories",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetMenuCategoriesLogGroup"
+            ]
+          },
+          "GetMenuItemsLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/menu/getItems.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-getMenuItems",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetMenuItemsLogGroup"
+            ]
+          },
+          "PlaceOrderLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/order/placeOrder.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-placeOrder",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "PlaceOrderLogGroup"
+            ]
+          },
+          "GetOrderLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/public/order/getOrder.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-getOrder",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetOrderLogGroup"
+            ]
+          },
+          "GetKitchenOrdersLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/kitchen/getOrders.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-getKitchenOrders",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetKitchenOrdersLogGroup"
+            ]
+          },
+          "UpdateOrderStatusLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/kitchen/updateOrderStatus.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-updateOrderStatus",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "UpdateOrderStatusLogGroup"
+            ]
+          },
+          "GetAreasLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/admin/areas/getAreas.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-getAreas",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetAreasLogGroup"
+            ]
+          },
+          "GetTablesLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z/restaurant-platform-api.zip"
+              },
+              "Handler": "src/admin/tables/getTables.handler",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "restaurant-platform-api-dev-getTables",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://postgres.exjztcguwxtmdpzmwgxc:azLJKyqgJnf4xRGS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true",
+                  "JWT_SECRET": "dev_secret_for_tests",
+                  "DB_SSL_CA": "prod-ca-2021.crt"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetTablesLogGroup"
+            ]
+          },
+          "HealthCheckLambdaVersionZiGlfsVq8DNfLcAQLDvz3Zn4t3sMKjXZHwUx85ZAs": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "HealthCheckLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "SuperAdminLoginLambdaVersionqrcqRE9ldpqBEhqtd0lqFL93smq7ZLvcrR6i4skWsWg": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "SuperAdminLoginLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "CreateRestaurantLambdaVersionEGUjRuOJmZ93HRmeIyu9seCtuE0FqFcGZKDWEpykA4U": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "CreateRestaurantLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "StaffLoginLambdaVersionqmEQQdQxa0aV83KnwL8B3sizzt5SCTIANTwj3I2IHUw": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "StaffLoginLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GetActiveTablesLambdaVersiondzS6vvgdGp0r4pVUgKyMVeSnPUYdb1jjnchGfkEI": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetActiveTablesLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "StartSessionLambdaVersionktUPezW78JwI8r1iCWzmCUVVckcrfF23ONZIU2abzJQ": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "StartSessionLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "InitiateCustomerLambdaVersionfTLuEtmiuEUkzIs22TUNpbrDhJy4Ba2scPjQKdIreU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "InitiateCustomerLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "VerifyOtpLambdaVersionSq3DbP6sSFhBHy1jvZQvrMwHf6jx9zoCR51glIo5c": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "VerifyOtpLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GenerateOtpLambdaVersionHtAmeTzunnmwHzsF3Iuewe81561HAJw22gKgS0IDc": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GenerateOtpLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GetMenuCategoriesLambdaVersionN0dy0wwHJrYGH3XXbzsaOVrRRsuekuQf0Ku5qnKrQ4": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetMenuCategoriesLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GetMenuItemsLambdaVersionGSh7vhqeIlVCSy4lsYLIfUwkdMy3yTE7VAzMSxMkc4": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetMenuItemsLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "PlaceOrderLambdaVersion9GZxCf1Qwgmc2OHhDJccgZp1d3v99LqCIpNtwXTmkk8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "PlaceOrderLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GetOrderLambdaVersionNQviMRs7iKDweqbfDCMKgqORy0bb715bYmvbQoP1s": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetOrderLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GetKitchenOrdersLambdaVersiong4aviGpEa5dckYEDrdlPVWvFpYTP25FBKnShW0kU4": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetKitchenOrdersLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "UpdateOrderStatusLambdaVersionmLGK4Ud9QfhTAbZKFEsQGNJqPQ81hDdA2SnaDdknY": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UpdateOrderStatusLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GetAreasLambdaVersion0khB316DNcQUlKW49KDQe1vvQ9lkkAICa7Mnl3vc8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetAreasLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "GetTablesLambdaVersionWxZTxqagsZYj7yDmj5AeqqHTlwUMmNv5aWnTkdSuTU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetTablesLambdaFunction"
+              },
+              "CodeSha256": "tECy88X7hqcpK1Xj+5PD8LiYJlEcR9Oefgkp2ei5J0I="
+            }
+          },
+          "HttpApi": {
+            "Type": "AWS::ApiGatewayV2::Api",
+            "Properties": {
+              "Name": "dev-restaurant-platform-api",
+              "ProtocolType": "HTTP"
+            }
+          },
+          "HttpApiStage": {
+            "Type": "AWS::ApiGatewayV2::Stage",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "StageName": "$default",
+              "AutoDeploy": true,
+              "DefaultRouteSettings": {
+                "DetailedMetricsEnabled": false
+              }
+            }
+          },
+          "HealthCheckLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "HealthCheckLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationHealthCheck": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"HealthCheckLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetHealth": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /health",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationHealthCheck"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationHealthCheck"
+          },
+          "SuperAdminLoginLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "SuperAdminLoginLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationSuperAdminLogin": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"SuperAdminLoginLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostSuperDashadminLogin": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /super-admin/login",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationSuperAdminLogin"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationSuperAdminLogin"
+          },
+          "CreateRestaurantLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "CreateRestaurantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationCreateRestaurant": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"CreateRestaurantLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostSuperDashadminCreaterestaurant": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /super-admin/createRestaurant",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationCreateRestaurant"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationCreateRestaurant"
+          },
+          "StaffLoginLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "StaffLoginLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationStaffLogin": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"StaffLoginLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostStaffLogin": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /staff/login",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationStaffLogin"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationStaffLogin"
+          },
+          "GetActiveTablesLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetActiveTablesLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetActiveTables": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GetActiveTablesLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetStaffActiveDashtables": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /staff/active-tables",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetActiveTables"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetActiveTables"
+          },
+          "StartSessionLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "StartSessionLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationStartSession": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"StartSessionLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostPublicQrSessionStart": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /public/qr/session/start",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationStartSession"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationStartSession"
+          },
+          "InitiateCustomerLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "InitiateCustomerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationInitiateCustomer": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"InitiateCustomerLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostPublicCustomerInitiate": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /public/customer/initiate",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationInitiateCustomer"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationInitiateCustomer"
+          },
+          "VerifyOtpLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "VerifyOtpLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationVerifyOtp": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"VerifyOtpLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostPublicCustomerVerifyDashotp": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /public/customer/verify-otp",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationVerifyOtp"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationVerifyOtp"
+          },
+          "GenerateOtpLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GenerateOtpLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGenerateOtp": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GenerateOtpLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostStaffOtpGenerate": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /staff/otp/generate",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGenerateOtp"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGenerateOtp"
+          },
+          "GetMenuCategoriesLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetMenuCategoriesLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetMenuCategories": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GetMenuCategoriesLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetPublicMenuCategories": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /public/menu/categories",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetMenuCategories"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetMenuCategories"
+          },
+          "GetMenuItemsLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetMenuItemsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetMenuItems": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GetMenuItemsLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetPublicMenuItems": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /public/menu/items",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetMenuItems"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetMenuItems"
+          },
+          "PlaceOrderLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "PlaceOrderLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationPlaceOrder": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"PlaceOrderLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostPublicOrderPlace": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /public/order/place",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationPlaceOrder"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationPlaceOrder"
+          },
+          "GetOrderLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetOrderLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetOrder": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GetOrderLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetPublicOrderOrderidVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /public/order/{orderId}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetOrder"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetOrder"
+          },
+          "GetKitchenOrdersLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetKitchenOrdersLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetKitchenOrders": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GetKitchenOrdersLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetKitchenOrders": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /kitchen/orders",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetKitchenOrders"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetKitchenOrders"
+          },
+          "UpdateOrderStatusLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UpdateOrderStatusLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationUpdateOrderStatus": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"UpdateOrderStatusLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePatchKitchenOrderOrderidVarStatus": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "PATCH /kitchen/order/{orderId}/status",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationUpdateOrderStatus"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationUpdateOrderStatus"
+          },
+          "GetAreasLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetAreasLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetAreas": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GetAreasLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetAdminAreas": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /admin/areas",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetAreas"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetAreas"
+          },
+          "GetTablesLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetTablesLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetTables": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"GetTablesLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetAdminTables": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /admin/tables",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetTables"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetTables"
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "HealthCheckLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "HealthCheckLambdaVersionZiGlfsVq8DNfLcAQLDvz3Zn4t3sMKjXZHwUx85ZAs"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-HealthCheckLambdaFunctionQualifiedArn"
+            }
+          },
+          "SuperAdminLoginLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "SuperAdminLoginLambdaVersionqrcqRE9ldpqBEhqtd0lqFL93smq7ZLvcrR6i4skWsWg"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-SuperAdminLoginLambdaFunctionQualifiedArn"
+            }
+          },
+          "CreateRestaurantLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "CreateRestaurantLambdaVersionEGUjRuOJmZ93HRmeIyu9seCtuE0FqFcGZKDWEpykA4U"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-CreateRestaurantLambdaFunctionQualifiedArn"
+            }
+          },
+          "StaffLoginLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "StaffLoginLambdaVersionqmEQQdQxa0aV83KnwL8B3sizzt5SCTIANTwj3I2IHUw"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-StaffLoginLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetActiveTablesLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetActiveTablesLambdaVersiondzS6vvgdGp0r4pVUgKyMVeSnPUYdb1jjnchGfkEI"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GetActiveTablesLambdaFunctionQualifiedArn"
+            }
+          },
+          "StartSessionLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "StartSessionLambdaVersionktUPezW78JwI8r1iCWzmCUVVckcrfF23ONZIU2abzJQ"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-StartSessionLambdaFunctionQualifiedArn"
+            }
+          },
+          "InitiateCustomerLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "InitiateCustomerLambdaVersionfTLuEtmiuEUkzIs22TUNpbrDhJy4Ba2scPjQKdIreU"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-InitiateCustomerLambdaFunctionQualifiedArn"
+            }
+          },
+          "VerifyOtpLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "VerifyOtpLambdaVersionSq3DbP6sSFhBHy1jvZQvrMwHf6jx9zoCR51glIo5c"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-VerifyOtpLambdaFunctionQualifiedArn"
+            }
+          },
+          "GenerateOtpLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GenerateOtpLambdaVersionHtAmeTzunnmwHzsF3Iuewe81561HAJw22gKgS0IDc"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GenerateOtpLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetMenuCategoriesLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetMenuCategoriesLambdaVersionN0dy0wwHJrYGH3XXbzsaOVrRRsuekuQf0Ku5qnKrQ4"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GetMenuCategoriesLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetMenuItemsLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetMenuItemsLambdaVersionGSh7vhqeIlVCSy4lsYLIfUwkdMy3yTE7VAzMSxMkc4"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GetMenuItemsLambdaFunctionQualifiedArn"
+            }
+          },
+          "PlaceOrderLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "PlaceOrderLambdaVersion9GZxCf1Qwgmc2OHhDJccgZp1d3v99LqCIpNtwXTmkk8"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-PlaceOrderLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetOrderLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetOrderLambdaVersionNQviMRs7iKDweqbfDCMKgqORy0bb715bYmvbQoP1s"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GetOrderLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetKitchenOrdersLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetKitchenOrdersLambdaVersiong4aviGpEa5dckYEDrdlPVWvFpYTP25FBKnShW0kU4"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GetKitchenOrdersLambdaFunctionQualifiedArn"
+            }
+          },
+          "UpdateOrderStatusLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UpdateOrderStatusLambdaVersionmLGK4Ud9QfhTAbZKFEsQGNJqPQ81hDdA2SnaDdknY"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-UpdateOrderStatusLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetAreasLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetAreasLambdaVersion0khB316DNcQUlKW49KDQe1vvQ9lkkAICa7Mnl3vc8"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GetAreasLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetTablesLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetTablesLambdaVersionWxZTxqagsZYj7yDmj5AeqqHTlwUMmNv5aWnTkdSuTU"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-GetTablesLambdaFunctionQualifiedArn"
+            }
+          },
+          "HttpApiId": {
+            "Description": "Id of the HTTP API",
+            "Value": {
+              "Ref": "HttpApi"
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-HttpApiId"
+            }
+          },
+          "HttpApiUrl": {
+            "Description": "URL of the HTTP API",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  }
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-restaurant-platform-api-dev-HttpApiUrl"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "pluginsData": {},
+    "functions": {
+      "healthCheck": {
+        "handler": "src/public/health.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/health",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/health"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-healthCheck",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "HealthCheckLambdaVersionZiGlfsVq8DNfLcAQLDvz3Zn4t3sMKjXZHwUx85ZAs"
+      },
+      "superAdminLogin": {
+        "handler": "src/super-admin//login.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/super-admin/login",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/super-admin/login"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-superAdminLogin",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "SuperAdminLoginLambdaVersionqrcqRE9ldpqBEhqtd0lqFL93smq7ZLvcrR6i4skWsWg"
+      },
+      "createRestaurant": {
+        "handler": "src/super-admin/createRestaurant.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/super-admin/createRestaurant",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/super-admin/createRestaurant"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-createRestaurant",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "CreateRestaurantLambdaVersionEGUjRuOJmZ93HRmeIyu9seCtuE0FqFcGZKDWEpykA4U"
+      },
+      "staffLogin": {
+        "handler": "src/staff/login.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/staff/login",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/staff/login"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-staffLogin",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "StaffLoginLambdaVersionqmEQQdQxa0aV83KnwL8B3sizzt5SCTIANTwj3I2IHUw"
+      },
+      "getActiveTables": {
+        "handler": "src/staff/activeTables.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/staff/active-tables",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/staff/active-tables"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-getActiveTables",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GetActiveTablesLambdaVersiondzS6vvgdGp0r4pVUgKyMVeSnPUYdb1jjnchGfkEI"
+      },
+      "startSession": {
+        "handler": "src/public/qr/startSession.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/public/qr/session/start",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/public/qr/session/start"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-startSession",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "StartSessionLambdaVersionktUPezW78JwI8r1iCWzmCUVVckcrfF23ONZIU2abzJQ"
+      },
+      "initiateCustomer": {
+        "handler": "src/public/customer/initiate.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/public/customer/initiate",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/public/customer/initiate"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-initiateCustomer",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "InitiateCustomerLambdaVersionfTLuEtmiuEUkzIs22TUNpbrDhJy4Ba2scPjQKdIreU"
+      },
+      "verifyOtp": {
+        "handler": "src/public/customer/verifyOtp.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/public/customer/verify-otp",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/public/customer/verify-otp"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-verifyOtp",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "VerifyOtpLambdaVersionSq3DbP6sSFhBHy1jvZQvrMwHf6jx9zoCR51glIo5c"
+      },
+      "generateOtp": {
+        "handler": "src/staff/otp/generate.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/staff/otp/generate",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/staff/otp/generate"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-generateOtp",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GenerateOtpLambdaVersionHtAmeTzunnmwHzsF3Iuewe81561HAJw22gKgS0IDc"
+      },
+      "getMenuCategories": {
+        "handler": "src/public/menu/getCategories.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/public/menu/categories",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/public/menu/categories"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-getMenuCategories",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GetMenuCategoriesLambdaVersionN0dy0wwHJrYGH3XXbzsaOVrRRsuekuQf0Ku5qnKrQ4"
+      },
+      "getMenuItems": {
+        "handler": "src/public/menu/getItems.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/public/menu/items",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/public/menu/items"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-getMenuItems",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GetMenuItemsLambdaVersionGSh7vhqeIlVCSy4lsYLIfUwkdMy3yTE7VAzMSxMkc4"
+      },
+      "placeOrder": {
+        "handler": "src/public/order/placeOrder.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/public/order/place",
+              "method": "post"
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/public/order/place"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-placeOrder",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "PlaceOrderLambdaVersion9GZxCf1Qwgmc2OHhDJccgZp1d3v99LqCIpNtwXTmkk8"
+      },
+      "getOrder": {
+        "handler": "src/public/order/getOrder.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/public/order/{orderId}",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/public/order/{orderId}"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-getOrder",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GetOrderLambdaVersionNQviMRs7iKDweqbfDCMKgqORy0bb715bYmvbQoP1s"
+      },
+      "getKitchenOrders": {
+        "handler": "src/kitchen/getOrders.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/kitchen/orders",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/kitchen/orders"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-getKitchenOrders",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GetKitchenOrdersLambdaVersiong4aviGpEa5dckYEDrdlPVWvFpYTP25FBKnShW0kU4"
+      },
+      "updateOrderStatus": {
+        "handler": "src/kitchen/updateOrderStatus.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/kitchen/order/{orderId}/status",
+              "method": "patch"
+            },
+            "resolvedMethod": "PATCH",
+            "resolvedPath": "/kitchen/order/{orderId}/status"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-updateOrderStatus",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "UpdateOrderStatusLambdaVersionmLGK4Ud9QfhTAbZKFEsQGNJqPQ81hDdA2SnaDdknY"
+      },
+      "getAreas": {
+        "handler": "src/admin/areas/getAreas.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/admin/areas",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/admin/areas"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-getAreas",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GetAreasLambdaVersion0khB316DNcQUlKW49KDQe1vvQ9lkkAICa7Mnl3vc8"
+      },
+      "getTables": {
+        "handler": "src/admin/tables/getTables.handler",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/admin/tables",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/admin/tables"
+          }
+        ],
+        "name": "restaurant-platform-api-dev-getTables",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "GetTablesLambdaVersionWxZTxqagsZYj7yDmj5AeqqHTlwUMmNv5aWnTkdSuTU"
+      }
+    },
+    "configValidationMode": "warn",
+    "serviceFilename": "serverless.yml",
+    "initialServerlessConfig": {
+      "service": "restaurant-platform-api",
+      "provider": {
+        "$ref": "$[\"service\"][\"provider\"]"
+      },
+      "package": {
+        "include": [
+          "prod-ca-2021.crt"
+        ],
+        "exclude": [
+          ".git/**",
+          ".gitignore",
+          ".env",
+          "tests/**",
+          "scripts/**",
+          "db/**",
+          ".md",
+          "node_modules/.bin/**",
+          "node_modules/serverless/**",
+          "node_modules/.package-lock.json"
+        ],
+        "artifactsS3KeyDirname": "serverless/restaurant-platform-api/dev/code-artifacts",
+        "artifact": "/Users/apple/Documents/Coco/resto-app/.serverless/restaurant-platform-api.zip",
+        "artifactDirectoryName": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z"
+      },
+      "functions": {
+        "$ref": "$[\"service\"][\"functions\"]"
+      }
+    },
+    "layers": {},
+    "isDashboardMonitoringPreconfigured": false,
+    "artifact": "/Users/apple/Documents/Coco/resto-app/.serverless/restaurant-platform-api.zip"
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/restaurant-platform-api/dev/1767708734401-2026-01-06T14:12:14.401Z",
+    "artifact": "restaurant-platform-api.zip"
+  }
+}
