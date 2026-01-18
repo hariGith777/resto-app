@@ -1,13 +1,23 @@
 import { db } from '../../common/db.js';
+import { validateSessionOpen } from '../../common/sessionValidator.js';
 
 export const handler = async ({ body }) => {
   try {
     const { sessionId, name, phone } = JSON.parse(body || '{}');
     if (!sessionId || !phone) return { statusCode: 400, body: JSON.stringify({ error: 'sessionId and phone required' }) };
 
-    // ensure session exists
-    const s = await db.query('SELECT id FROM table_sessions WHERE id=$1 LIMIT 1', [sessionId]);
-    if (!s.rowCount) return { statusCode: 404, body: JSON.stringify({ error: 'Session not found' }) };
+    // Validate session exists and is OPEN
+    try {
+      await validateSessionOpen(sessionId);
+    } catch (error) {
+      if (error.message === 'SESSION_NOT_FOUND') {
+        return { statusCode: 404, body: JSON.stringify({ error: 'Session not found' }) };
+      }
+      if (error.message === 'SESSION_CLOSED') {
+        return { statusCode: 403, body: JSON.stringify({ error: 'Session is closed. Cannot initiate customer.' }) };
+      }
+      throw error;
+    }
 
     // find or create customer profile
     let res = await db.query('SELECT id FROM customer_profiles WHERE phone=$1 LIMIT 1', [phone]);

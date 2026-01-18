@@ -19,9 +19,9 @@ export const handler = async ({ headers, queryStringParameters }) => {
       return { statusCode: 403, body: JSON.stringify({ error: "Invalid token" }) };
     }
 
-    // Get filter status from query params (default: SENT)
-    const filterStatus = queryStringParameters?.status || "SENT";
-    const validStatuses = ["SENT", "READY", "COMPLETED"];
+    // Get filter status from query params (default: PREPARING)
+    const filterStatus = queryStringParameters?.status || "PREPARING";
+    const validStatuses = ["PLACED", "PREPARING", "READY", "COMPLETED"];
     if (!validStatuses.includes(filterStatus)) {
       return {
         statusCode: 400,
@@ -33,6 +33,7 @@ export const handler = async ({ headers, queryStringParameters }) => {
     const ordersRes = await db.query(
       `SELECT o.id, o.session_id, o.status, o.total_amount, o.created_at,
               t.table_number, a.name as area_name, b.name as branch_name,
+              b.currency_code, b.currency_symbol,
               COUNT(oi.id) as item_count,
               EXTRACT(EPOCH FROM (NOW() - o.created_at)) as elapsed_seconds
        FROM orders o
@@ -43,7 +44,7 @@ export const handler = async ({ headers, queryStringParameters }) => {
        LEFT JOIN order_items oi ON o.id = oi.order_id
        LEFT JOIN kots k ON k.order_id = o.id
        WHERE k.status = $1 AND b.id = $2
-       GROUP BY o.id, t.table_number, a.name, b.name
+       GROUP BY o.id, t.table_number, a.name, b.name, b.currency_code, b.currency_symbol
        ORDER BY o.created_at ASC`,
       [filterStatus, staffInfo.branchId]
     );
@@ -72,7 +73,12 @@ export const handler = async ({ headers, queryStringParameters }) => {
           table: `${order.area_name} - T${order.table_number}`,
           branch: order.branch_name,
           status: order.status,
-          totalAmount: order.total_amount,
+          totalAmount: {
+            amount: parseFloat(order.total_amount),
+            currency: order.currency_code,
+            symbol: order.currency_symbol,
+            formatted: `${order.currency_symbol}${parseFloat(order.total_amount).toFixed(2)}`
+          },
           itemCount: order.item_count,
           elapsedMinutes: Math.floor(order.elapsed_seconds / 60),
           createdAt: order.created_at,

@@ -14,6 +14,7 @@ CREATE TABLE restaurants (
   primary_color VARCHAR(10),
   secondary_color VARCHAR(10),
   status VARCHAR(20) DEFAULT 'ACTIVE',
+  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now()
 );
@@ -23,15 +24,28 @@ CREATE TABLE branches (
   restaurant_id UUID NOT NULL REFERENCES restaurants(id),
   name TEXT NOT NULL,
   address TEXT,
+  country VARCHAR(50) DEFAULT 'India',
+  currency_code VARCHAR(3) DEFAULT 'INR',
+  currency_symbol VARCHAR(5) DEFAULT '₹',
+  timezone VARCHAR(50) DEFAULT 'Asia/Kolkata',
+  date_format VARCHAR(20) DEFAULT 'DD/MM/YYYY',
+  time_format VARCHAR(10) DEFAULT '12h',
+  language VARCHAR(10) DEFAULT 'en',
+  phone_country_code VARCHAR(5) DEFAULT '+91',
+  tax_rate DECIMAL(5,2) DEFAULT 0.00,
+  service_charge_rate DECIMAL(5,2) DEFAULT 0.00,
   is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT now()
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE areas (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   branch_id UUID NOT NULL REFERENCES branches(id),
   name TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT now()
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE tables (
@@ -39,7 +53,8 @@ CREATE TABLE tables (
   area_id UUID NOT NULL REFERENCES areas(id),
   table_number VARCHAR(10) NOT NULL,
   capacity INT,
-  qr_code TEXT,
+  qr_code TEXT,,
+  updated_at TIMESTAMP DEFAULT now()
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT now()
 );
@@ -62,7 +77,8 @@ CREATE TABLE IF NOT EXISTS staff (
     role IN ('SUPER_ADMIN','RESTAURANT_ADMIN','CAPTAIN','KITCHEN')
   ),
   phone VARCHAR(15),
-  is_active BOOLEAN DEFAULT true,
+  is_active BOOLEAN DEFAULT true,,
+  updated_at TIMESTAMP DEFAULT now()
   created_at TIMESTAMP DEFAULT now()
 );
 
@@ -115,19 +131,30 @@ CREATE TABLE otp_requests (
 CREATE TABLE menu_categories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   branch_id UUID NOT NULL REFERENCES branches(id),
-  name TEXT NOT NULL,
+  name TEXT NOT NULL,,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
   display_order INT,
   is_active BOOLEAN DEFAULT true
 );
+
+-- Food type enum for menu items
+CREATE TYPE food_type_enum AS ENUM ('VEG', 'NON_VEG', 'EGG');
 
 CREATE TABLE menu_items (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   category_id UUID NOT NULL REFERENCES menu_categories(id),
   name TEXT NOT NULL,
-  description TEXT,
+  description TEXT,  -- Can be generated with AI
   base_price NUMERIC(10,2) NOT NULL,
-  is_veg BOOLEAN,
-  spice_level VARCHAR(20),
+  food_type food_type_enum,  -- 🟢 Veg, 🔴 Non-Veg, 🟡 Contains Egg
+  image_url TEXT,  -- Uploaded image
+  tags TEXT[],  -- e.g., ['Spicy', 'Halal', 'Chef''s Special'] - can be AI-suggested
+  preparation_time INT,  -- Minutes (optional)
+  kitchen_type VARCHAR(20) CHECK (kitchen_type IN ('VEG_KITCHEN', 'NON_VEG_KITCHEN')),  -- Kitchen selection
+  is_veg BOOLEAN,  -- Deprecated, kept for backward compatibility
+  spice_level VARCHAR(20),,
+  updated_at TIMESTAMP DEFAULT now()
   allergens JSONB,
   is_available BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT now()
@@ -136,8 +163,11 @@ CREATE TABLE menu_items (
 CREATE TABLE menu_portions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   menu_item_id UUID NOT NULL REFERENCES menu_items(id),
-  label VARCHAR(50),
-  price NUMERIC(10,2)
+  label VARCHAR(50),  -- Variation name: Small, Medium, Large
+  base_price NUMERIC(10,2) NOT NULL,  -- Dine-in base price
+  delivery_price NUMERIC(10,2),  -- Delivery price
+  takeaway_price NUMERIC(10,2),  -- Takeaway price
+  price NUMERIC(10,2)  -- Deprecated, kept for backward compatibility
 );
 
 CREATE TABLE menu_modifiers (
@@ -156,25 +186,30 @@ CREATE TABLE menu_modifiers (
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   session_id UUID NOT NULL REFERENCES table_sessions(id),
-  customer_id UUID REFERENCES customers(id),
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT now(),
+  updtomer_id UUID REFERENCES customers(id),
   status VARCHAR(30) NOT NULL,
   total_amount NUMERIC(10,2),
   created_at TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE order_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT ,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()uuid_generate_v4(),
   order_id UUID NOT NULL REFERENCES orders(id),
   menu_item_id UUID NOT NULL REFERENCES menu_items(id),
   portion_id UUID REFERENCES menu_portions(id),
   qty INT NOT NULL,
   price NUMERIC(10,2) NOT NULL
 );
-
+,
+  updated_at TIMESTAMP DEFAULT now()
 CREATE TABLE kots (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   order_id UUID NOT NULL REFERENCES orders(id),
-  status VARCHAR(20) DEFAULT 'SENT',
+  status VARCHAR(20) DEFAULT 'PLACED',
   created_at TIMESTAMP DEFAULT now()
 );
 

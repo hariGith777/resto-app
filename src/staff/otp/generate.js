@@ -45,15 +45,49 @@ export const handler = async ({ body, headers }) => {
       return { statusCode: 403, body: JSON.stringify({ error: 'Branch mismatch' }) };
     }
 
-    // generate numeric OTP (6 digits)
-    const otp = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    // Check for existing unexpired OTP in this session (even if already verified by someone)
+    const existingOtpRes = await db.query(
+      `SELECT otp_code, expires_at 
+       FROM otp_requests 
+       WHERE session_id = $1 
+         AND expires_at > NOW()
+       ORDER BY created_at DESC 
+       LIMIT 1`,
+      [sessionId]
+    );
 
-    // Insert into existing schema (otp_code, generated_by)
-    await db.query('INSERT INTO otp_requests(session_id, customer_phone, otp_code, generated_by, expires_at) VALUES($1,$2,$3,$4,$5)', [sessionId, customerPhone, otp, payload.staffId || null, expiresAt]);
+    let otp, expiresAt;
+    let reused = false;
 
-    // return OTP to captain app only
-    return { statusCode: 200, body: JSON.stringify({ otp }) };
+    if (existingOtpRes.rowCount > 0) {
+      // Reuse existing OTP for new customer
+      otp = existingOtpRes.rows[0].otp_code;
+      expiresAt = existingOtpRes.rows[0].expires_at;
+      reused = true;
+      
+      console.log(`Reusing OTP ${otp} for session ${sessionId}, customer ${customerPhone}`);
+      
+      // Create tracking record for this customer with same OTP
+      await db.query(
+        'INSERT INTO otp_requests(session_id, customer_phone, otp_code, generated_by, expires_at) VALUES($1,$2,$3,$4,$5)',
+        [sessionId, customerPhone, otp, payload.staffId, expiresAt]
+      );
+    } else {
+      // Generate new numeric OTP (6 digits)
+      otp = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+      expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+      
+      console.log(`Generated new OTP ${otp} for session ${sessionId}, customer ${customerPhone}`);
+
+      // Insert new OTP record
+      await db.query(
+        'INSERT INTO otp_requests(session_id, customer_phone, otp_code, generated_by, expires_at) VALUES($1,$2,$3,$4,$5)',
+        [sessionId, customerPhone, otp, payload.staffId, expiresAt]
+      );
+    }
+
+    // return OTP to captain app with reused flag
+    return { statusCode: 200, body: JSON.stringify({ otp, reused }) };
   } catch (error) {
     console.error('Generate OTP error:', error);
     return { statusCode: 500, body: JSON.stringify({ error: 'Internal server error' }) };

@@ -1,0 +1,2647 @@
+{
+  "info": {
+    "name": "Restaurant Platform - End-to-End Flow",
+    "description": "Complete flow from super admin login to customer order placement with currency support",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://c83055bt54.execute-api.ap-south-1.amazonaws.com",
+      "type": "string"
+    },
+    {
+      "key": "superAdminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "managerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "captainToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "restaurantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "branchId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "managerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "branch2Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "manager2Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "areaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tableId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "captainId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menuItem1Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menuItem2Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menuItem3Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerPhone",
+      "value": "+919999888877",
+      "type": "string"
+    },
+    {
+      "key": "otp",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "superAdminUsername",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Get Super Admin ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// This should be run directly against the database",
+                  "// Use this ID to login as super admin",
+                  "// Query: SELECT id FROM staff WHERE role = 'SUPER_ADMIN' LIMIT 1",
+                  "",
+                  "// For now, manually set the superAdminId variable with the ID from your database",
+                  "console.log('Please set superAdminId variable manually from database');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Health check endpoint. Before running the flow, set the superAdminId variable with a UUID from: SELECT id FROM staff WHERE role = 'SUPER_ADMIN' LIMIT 1"
+          },
+          "response": []
+        }
+      ],
+      "description": "Initial setup and health check"
+    },
+    {
+      "name": "1. Super Admin",
+      "item": [
+        {
+          "name": "Super Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.collectionVariables.set('superAdminToken', jsonData.token);",
+                  "});",
+                  "",
+                  "console.log('Super Admin Token:', pm.collectionVariables.get('superAdminToken'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{superAdminUsername}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "login"]
+            },
+            "description": "Authenticate as super admin. Make sure to set superAdminUsername variable first."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Restaurant created with branch', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.restaurantId).to.exist;",
+                  "    pm.expect(jsonData.branches).to.be.an('array');",
+                  "    pm.expect(jsonData.branches.length).to.be.greaterThan(0);",
+                  "    ",
+                  "    pm.collectionVariables.set('restaurantId', jsonData.restaurantId);",
+                  "    pm.collectionVariables.set('branchId', jsonData.branches[0].branchId);",
+                  "    pm.collectionVariables.set('managerId', jsonData.branches[0].managerId);",
+                  "});",
+                  "",
+                  "console.log('Restaurant ID:', pm.collectionVariables.get('restaurantId'));",
+                  "console.log('Branch ID:', pm.collectionVariables.get('branchId'));",
+                  "console.log('Manager ID:', pm.collectionVariables.get('managerId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Test Restaurant\",\n  \"logoUrl\": \"https://example.com/logo.png\",\n  \"primaryColor\": \"#FF5733\",\n  \"secondaryColor\": \"#C70039\",\n  \"branches\": [\n    {\n      \"name\": \"Main Branch\",\n      \"address\": \"123 Test Street, City\",\n      \"country\": \"India\",\n      \"currencyCode\": \"INR\",\n      \"currencySymbol\": \"₹\",\n      \"timezone\": \"Asia/Kolkata\",\n      \"dateFormat\": \"DD/MM/YYYY\",\n      \"timeFormat\": \"12h\",\n      \"language\": \"en\",\n      \"phoneCountryCode\": \"+91\",\n      \"taxRate\": 5.0,\n      \"serviceChargeRate\": 10.0,\n      \"manager\": {\n        \"name\": \"Postman Manager\",\n        \"username\": \"postman_manager\",\n        \"phone\": \"+919876543210\"\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/createRestaurant",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "createRestaurant"]
+            },
+            "description": "Create restaurant with branch and manager. Supports multi-currency."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Additional Branch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Branch created', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.branchId).to.exist;",
+                  "    pm.collectionVariables.set('branch2Id', jsonData.branchId);",
+                  "    if (jsonData.managerId) {",
+                  "        pm.collectionVariables.set('manager2Id', jsonData.managerId);",
+                  "    }",
+                  "});",
+                  "",
+                  "console.log('Second Branch ID:', pm.collectionVariables.get('branch2Id'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"name\": \"Second Branch\",\n  \"address\": \"456 Another Street, City\",\n  \"country\": \"India\",\n  \"currencyCode\": \"INR\",\n  \"currencySymbol\": \"₹\",\n  \"timezone\": \"Asia/Kolkata\",\n  \"dateFormat\": \"DD/MM/YYYY\",\n  \"timeFormat\": \"12h\",\n  \"language\": \"en\",\n  \"phoneCountryCode\": \"+91\",\n  \"taxRate\": 5.0,\n  \"serviceChargeRate\": 10.0,\n  \"manager\": {\n    \"name\": \"Second Branch Manager\",\n    \"username\": \"manager_branch2\",\n    \"phone\": \"+919876543211\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/createBranch",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "createBranch"]
+            },
+            "description": "Super admin can add additional branches to existing restaurant"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Restaurant updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.restaurant).to.exist;",
+                  "    pm.expect(jsonData.restaurant.id).to.equal(pm.collectionVariables.get('restaurantId'));",
+                  "});",
+                  "",
+                  "console.log('Restaurant updated:', pm.response.json().restaurant.name);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Restaurant Name\",\n  \"primaryColor\": \"#0066CC\",\n  \"secondaryColor\": \"#FF9900\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/restaurants/{{restaurantId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "restaurants", "{{restaurantId}}"]
+            },
+            "description": "Update restaurant details. Supports partial updates - only include fields to change. Fields: name, primaryColor, secondaryColor, status, isActive (boolean to enable/disable restaurant)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Branch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Branch updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.branch).to.exist;",
+                  "    pm.expect(jsonData.branch.id).to.equal(pm.collectionVariables.get('branchId'));",
+                  "});",
+                  "",
+                  "console.log('Branch updated:', pm.response.json().branch.name);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Branch Name\",\n  \"address\": \"Updated Address, City\",\n  \"currencySymbol\": \"₹\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/branches/{{branchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "branches", "{{branchId}}"]
+            },
+            "description": "Update branch details. Supports partial updates. Fields: name, address, currencyCode, currencySymbol, isActive"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Restaurants",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has restaurants list', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.restaurants).to.be.an('array');",
+                  "    pm.expect(jsonData.pagination).to.exist;",
+                  "});",
+                  "",
+                  "console.log('Total restaurants:', pm.response.json().pagination.total);",
+                  "console.log('Found:', pm.response.json().restaurants.length, 'restaurants');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/restaurants?limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "restaurants"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Starting offset for pagination"
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "description": "Filter by restaurant status",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search restaurants by name",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get list of all restaurants with pagination, search, and filtering. Returns restaurant details with branch and staff counts."
+          },
+          "response": []
+        }
+      ],
+      "description": "Super admin authentication and restaurant setup"
+    },
+    {
+      "name": "2. Infrastructure Setup",
+      "item": [
+        {
+          "name": "Create Area",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Area created', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.areaId).to.exist;",
+                  "    pm.collectionVariables.set('areaId', jsonData.areaId);",
+                  "});",
+                  "",
+                  "console.log('Area ID:', pm.collectionVariables.get('areaId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"name\": \"Main Hall\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/areas",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "areas"]
+            },
+            "description": "Manager creates dining area for the branch"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Area",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Area updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.area).to.exist;",
+                  "    pm.expect(jsonData.area.id).to.equal(pm.collectionVariables.get('areaId'));",
+                  "});",
+                  "",
+                  "console.log('Area updated:', pm.response.json().area.name);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Area Name\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/areas/{{areaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "areas", "{{areaId}}"]
+            },
+            "description": "Update area details. Supports partial updates. Fields: name, isActive. Branch isolation enforced."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Areas with Tables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Areas returned as array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Areas have tables field', function () {",
+                  "    var areas = pm.response.json();",
+                  "    if (areas.length > 0) {",
+                  "        pm.expect(areas[0]).to.have.property('tables');",
+                  "        pm.expect(areas[0].tables).to.be.an('array');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('Tables have required fields', function () {",
+                  "    var areas = pm.response.json();",
+                  "    if (areas.length > 0 && areas[0].tables.length > 0) {",
+                  "        var table = areas[0].tables[0];",
+                  "        pm.expect(table).to.have.property('id');",
+                  "        pm.expect(table).to.have.property('tableNumber');",
+                  "        pm.expect(table).to.have.property('capacity');",
+                  "        pm.expect(table).to.have.property('qrCode');",
+                  "    }",
+                  "});",
+                  "",
+                  "console.log('Areas:', pm.response.json().length);",
+                  "var totalTables = pm.response.json().reduce((sum, a) => sum + a.tables.length, 0);",
+                  "console.log('Total Tables:', totalTables);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/areas?branchId={{branchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "areas"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "{{branchId}}"
+                }
+              ]
+            },
+            "description": "Get all areas with their tables nested in response"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Table",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Table created with QR code', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.tableId).to.exist;",
+                  "    pm.expect(jsonData.qr).to.exist;",
+                  "    pm.collectionVariables.set('tableId', jsonData.tableId);",
+                  "});",
+                  "",
+                  "console.log('Table ID:', pm.collectionVariables.get('tableId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"areaId\": \"{{areaId}}\",\n  \"tableNumber\": \"1\",\n  \"capacity\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/tables",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "tables"]
+            },
+            "description": "Manager creates table in the area. QR code is auto-generated."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Table",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Table updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.table).to.exist;",
+                  "    pm.expect(jsonData.table.id).to.equal(pm.collectionVariables.get('tableId'));",
+                  "});",
+                  "",
+                  "console.log('Table updated:', pm.response.json().table.table_number);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tableNumber\": \"A1\",\n  \"capacity\": 6,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/tables/{{tableId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "tables", "{{tableId}}"]
+            },
+            "description": "Update table details. Supports partial updates. Fields: tableNumber, capacity, qrCode, isActive. Branch isolation via area."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Captain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Captain created', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.staffId).to.exist;",
+                  "    pm.collectionVariables.set('captainId', jsonData.staffId);",
+                  "});",
+                  "",
+                  "console.log('Captain ID:', pm.collectionVariables.get('captainId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"name\": \"Postman Captain\",\n  \"username\": \"postman_captain\",\n  \"role\": \"CAPTAIN\",\n  \"phone\": \"+919876543211\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "staff"]
+            },
+            "description": "Manager creates captain staff for OTP generation"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Staff",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Staff updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.staff).to.exist;",
+                  "    pm.expect(jsonData.staff.id).to.equal(pm.collectionVariables.get('captainId'));",
+                  "});",
+                  "",
+                  "console.log('Staff updated:', pm.response.json().staff.name);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Captain Name\",\n  \"phone\": \"+919876543299\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/staff/{{captainId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "staff", "{{captainId}}"]
+            },
+            "description": "Update staff details. Supports partial updates. Fields: name, username, role, phone, isActive (boolean to enable/disable staff). Role limited to CAPTAIN, KITCHEN, STAFF, RESTAURANT_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Staff List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has staff list', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.staff).to.be.an('array');",
+                  "    pm.expect(jsonData.total).to.exist;",
+                  "});",
+                  "",
+                  "var staff = pm.response.json().staff;",
+                  "var roleCount = staff.reduce((acc, s) => {",
+                  "    acc[s.role] = (acc[s.role] || 0) + 1;",
+                  "    return acc;",
+                  "}, {});",
+                  "console.log('Total staff:', pm.response.json().total);",
+                  "console.log('By role:', JSON.stringify(roleCount, null, 2));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "staff"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "CAPTAIN",
+                  "description": "Filter by role (CAPTAIN, KITCHEN, RESTAURANT_ADMIN)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get list of all staff members in the branch. Can filter by role."
+          },
+          "response": []
+        }
+      ],
+      "description": "Manager sets up areas, tables, and staff"
+    },
+    {
+      "name": "3. Manager - Menu Setup",
+      "item": [
+        {
+          "name": "Manager Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Manager logged in', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.expect(jsonData.role).to.equal('RESTAURANT_ADMIN');",
+                  "    pm.collectionVariables.set('managerToken', jsonData.token);",
+                  "});",
+                  "",
+                  "console.log('Manager Token:', pm.collectionVariables.get('managerToken'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman_manager\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "login"]
+            },
+            "description": "Manager authentication"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Category created', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.category).to.exist;",
+                  "    pm.expect(jsonData.category.id).to.exist;",
+                  "    pm.collectionVariables.set('categoryId', jsonData.category.id);",
+                  "});",
+                  "",
+                  "console.log('Category ID:', pm.collectionVariables.get('categoryId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Starters\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "categories"]
+            },
+            "description": "Create menu category"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Menu Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has categories list', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.categories).to.be.an('array');",
+                  "    pm.expect(jsonData.pagination).to.exist;",
+                  "    pm.expect(jsonData.pagination.total).to.exist;",
+                  "});",
+                  "",
+                  "console.log('Total categories:', pm.response.json().pagination.total);",
+                  "console.log('Returned:', pm.response.json().pagination.returned);",
+                  "pm.response.json().categories.forEach(cat => {",
+                  "    console.log(`${cat.name} - ${cat.item_count || 0} items (Active: ${cat.is_active})`);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/categories?includeItemCount=true&limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "categories"],
+              "query": [
+                {
+                  "key": "includeItemCount",
+                  "value": "true",
+                  "description": "Include count of items in each category"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of categories per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Starting offset for pagination"
+                }
+              ]
+            },
+            "description": "Get list of all menu categories with their items. Each category includes full menu item details with portions, pricing, food type, spice level, allergens, and tags. Supports pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Menu Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Category updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.category).to.exist;",
+                  "    pm.expect(jsonData.category.id).to.equal(pm.collectionVariables.get('categoryId'));",
+                  "});",
+                  "",
+                  "console.log('Category updated:', pm.response.json().category.name);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Starters\",\n  \"displayOrder\": 2,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "categories", "{{categoryId}}"]
+            },
+            "description": "Update menu category. Supports partial updates. Fields: name, displayOrder, isActive. Branch isolation enforced."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Menu Items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has items list', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.items).to.be.an('array');",
+                  "    pm.expect(jsonData.pagination).to.exist;",
+                  "    pm.expect(jsonData.filters).to.exist;",
+                  "});",
+                  "",
+                  "console.log('Total items:', pm.response.json().pagination.total);",
+                  "console.log('Returned:', pm.response.json().pagination.returned);",
+                  "console.log('\\nFilters applied:', JSON.stringify(pm.response.json().filters, null, 2));",
+                  "pm.response.json().items.forEach(item => {",
+                  "    console.log(`${item.name} - ${item.food_type} - ${item.price.formatted} (${item.category_name})`);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/items?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "items"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of items per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Starting offset for pagination"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "{{categoryId}}",
+                  "description": "Filter by category",
+                  "disabled": true
+                },
+                {
+                  "key": "foodType",
+                  "value": "VEG",
+                  "description": "Filter by food type (VEG/NON_VEG/EGG)",
+                  "disabled": true
+                },
+                {
+                  "key": "isAvailable",
+                  "value": "true",
+                  "description": "Filter by availability",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by item name",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get paginated list of menu items for the branch. Each item includes portions, pricing, category name, food type, and all details. Supports filtering by category, food type, availability, and search."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu Item - VEG",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Menu item created with price', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.menuItem).to.exist;",
+                  "    pm.expect(jsonData.menuItem.id).to.exist;",
+                  "    pm.expect(jsonData.menuItem.price).to.exist;",
+                  "    pm.expect(jsonData.menuItem.price.currency).to.exist;",
+                  "    pm.expect(jsonData.menuItem.food_type).to.equal('VEG');",
+                  "    pm.collectionVariables.set('menuItem1Id', jsonData.menuItem.id);",
+                  "});",
+                  "",
+                  "console.log('Menu Item 1 ID:', pm.collectionVariables.get('menuItem1Id'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"name\": \"Paneer Tikka\",\n  \"description\": \"Grilled cottage cheese with spices\",\n  \"basePrice\": 180,\n  \"foodType\": \"VEG\",\n  \"spiceLevel\": \"MEDIUM\",\n  \"allergens\": [\"dairy\"],\n  \"isAvailable\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "items"]
+            },
+            "description": "Create vegetarian menu item with currency formatting"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu Item - NON_VEG",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Non-veg item created', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.menuItem.food_type).to.equal('NON_VEG');",
+                  "    pm.collectionVariables.set('menuItem2Id', jsonData.menuItem.id);",
+                  "});",
+                  "",
+                  "console.log('Menu Item 2 ID:', pm.collectionVariables.get('menuItem2Id'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"name\": \"Chicken Wings\",\n  \"description\": \"Crispy fried chicken wings\",\n  \"basePrice\": 220,\n  \"foodType\": \"NON_VEG\",\n  \"spiceLevel\": \"HOT\",\n  \"allergens\": [],\n  \"isAvailable\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "items"]
+            },
+            "description": "Create non-vegetarian menu item"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Menu Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Menu item updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.menuItem).to.exist;",
+                  "    pm.expect(jsonData.menuItem.id).to.equal(pm.collectionVariables.get('menuItem2Id'));",
+                  "});",
+                  "",
+                  "console.log('Menu Item updated:', pm.response.json().menuItem.name);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Spicy Chicken Wings\",\n  \"basePrice\": 250,\n  \"spiceLevel\": \"EXTRA_HOT\",\n  \"isAvailable\": true,\n  \"tags\": [\"Bestseller\", \"Spicy\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/items/{{menuItem2Id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "items", "{{menuItem2Id}}"]
+            },
+            "description": "Update menu item. Supports partial updates with 11 fields: name, description, basePrice, foodType, imageUrl, tags, preparationTime, kitchenType, spiceLevel, allergens, isAvailable. Branch isolation via category."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu Item - EGG",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Egg item created', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.menuItem.food_type).to.equal('EGG');",
+                  "    pm.collectionVariables.set('menuItem3Id', jsonData.menuItem.id);",
+                  "});",
+                  "",
+                  "console.log('Menu Item 3 ID:', pm.collectionVariables.get('menuItem3Id'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"name\": \"Egg Rolls\",\n  \"description\": \"Crispy rolls with egg filling\",\n  \"basePrice\": 120,\n  \"foodType\": \"EGG\",\n  \"spiceLevel\": \"MILD\",\n  \"allergens\": [\"egg\", \"gluten\"],\n  \"isAvailable\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "items"]
+            },
+            "description": "Create egg-containing menu item"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Menu Description with AI",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Description generated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.description).to.exist;",
+                  "    pm.expect(jsonData.generated).to.be.true;",
+                  "});",
+                  "",
+                  "console.log('Generated Description:', pm.response.json().description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemName\": \"Butter Chicken\",\n  \"foodType\": \"NON_VEG\",\n  \"tags\": [\"Spicy\", \"Chef's Special\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/generate-description",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "generate-description"]
+            },
+            "description": "AI-powered description generation for menu items"
+          },
+          "response": []
+        },
+        {
+          "name": "Suggest Tags with AI",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Tags suggested', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.tags).to.be.an('array');",
+                  "    pm.expect(jsonData.generated).to.be.true;",
+                  "});",
+                  "",
+                  "console.log('Suggested Tags:', pm.response.json().tags);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemName\": \"Chicken Biryani\",\n  \"description\": \"Aromatic rice with spiced chicken\",\n  \"foodType\": \"NON_VEG\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/suggest-tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "suggest-tags"]
+            },
+            "description": "AI-powered tag suggestions for menu items"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu Item - Complete with All Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Item created with all fields', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.menuItem.food_type).to.equal('NON_VEG');",
+                  "    pm.expect(jsonData.menuItem.tags).to.be.an('array');",
+                  "    pm.expect(jsonData.menuItem.preparation_time).to.equal(25);",
+                  "    pm.expect(jsonData.menuItem.kitchen_type).to.equal('NON_VEG_KITCHEN');",
+                  "});",
+                  "",
+                  "console.log('Complete Item Created:', pm.response.json().menuItem.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"name\": \"Butter Chicken\",\n  \"description\": \"Tender chicken in rich tomato cream sauce with aromatic spices\",\n  \"basePrice\": 350,\n  \"foodType\": \"NON_VEG\",\n  \"imageUrl\": \"https://example.com/butter-chicken.jpg\",\n  \"tags\": [\"Chef's Special\", \"Spicy\", \"Creamy\"],\n  \"preparationTime\": 25,\n  \"kitchenType\": \"NON_VEG_KITCHEN\",\n  \"spiceLevel\": \"MEDIUM\",\n  \"allergens\": [\"DAIRY\", \"NUTS\"],\n  \"isAvailable\": true,\n  \"portions\": [\n    {\n      \"label\": \"Half\",\n      \"basePrice\": 220,\n      \"deliveryPrice\": 240,\n      \"takeawayPrice\": 230\n    },\n    {\n      \"label\": \"Full\",\n      \"basePrice\": 350,\n      \"deliveryPrice\": 370,\n      \"takeawayPrice\": 360\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/menu/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "menu", "items"]
+            },
+            "description": "Create menu item with all new fields: image, tags, prep time, kitchen type, and multiple price variations"
+          },
+          "response": []
+        }
+      ],
+      "description": "Manager creates menu categories and items with food type classification"
+    },
+    {
+      "name": "4. Captain",
+      "item": [
+        {
+          "name": "Captain Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Captain logged in', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.expect(jsonData.role).to.equal('CAPTAIN');",
+                  "    pm.collectionVariables.set('captainToken', jsonData.token);",
+                  "});",
+                  "",
+                  "console.log('Captain Token:', pm.collectionVariables.get('captainToken'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman_captain\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "login"]
+            },
+            "description": "Captain authentication for OTP generation"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Captain Orders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Orders response structure', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.orders).to.be.an('array');",
+                  "    pm.expect(jsonData.ordersByStatus).to.exist;",
+                  "    pm.expect(jsonData.summary).to.exist;",
+                  "});",
+                  "",
+                  "pm.test('Summary has status counts', function () {",
+                  "    var summary = pm.response.json().summary;",
+                  "    pm.expect(summary).to.have.property('placed');",
+                  "    pm.expect(summary).to.have.property('preparing');",
+                  "    pm.expect(summary).to.have.property('ready');",
+                  "    pm.expect(summary).to.have.property('completed');",
+                  "    pm.expect(summary).to.have.property('cancelled');",
+                  "});",
+                  "",
+                  "pm.test('Orders have required fields', function () {",
+                  "    var orders = pm.response.json().orders;",
+                  "    if (orders.length > 0) {",
+                  "        var order = orders[0];",
+                  "        pm.expect(order).to.have.property('id');",
+                  "        pm.expect(order).to.have.property('status');",
+                  "        pm.expect(order).to.have.property('totalAmount');",
+                  "        pm.expect(order).to.have.property('tableNumber');",
+                  "        pm.expect(order).to.have.property('areaName');",
+                  "        pm.expect(order).to.have.property('items');",
+                  "        pm.expect(order).to.have.property('createdAt');",
+                  "    }",
+                  "});",
+                  "",
+                  "console.log('Total Orders:', pm.response.json().orders.length);",
+                  "console.log('Summary:', JSON.stringify(pm.response.json().summary));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{captainToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/captain/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["captain", "orders"]
+            },
+            "description": "Get all active orders in captain's branch with status"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Captain Orders - Filter by Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('All orders have PLACED status', function () {",
+                  "    var orders = pm.response.json().orders;",
+                  "    orders.forEach(function(order) {",
+                  "        pm.expect(order.status).to.equal('PLACED');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log('PLACED Orders Count:', pm.response.json().orders.length);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{captainToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/captain/orders?status=PLACED",
+              "host": ["{{baseUrl}}"],
+              "path": ["captain", "orders"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PLACED"
+                }
+              ]
+            },
+            "description": "Get filtered orders by status (PLACED, SENT, READY, COMPLETED, CANCELLED)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Captain staff authentication"
+    },
+    {
+      "name": "5. Customer Flow",
+      "item": [
+        {
+          "name": "Start Session (QR Scan)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test('Session created', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.sessionId).to.exist;",
+                  "    pm.collectionVariables.set('sessionId', jsonData.sessionId);",
+                  "});",
+                  "",
+                  "console.log('Session ID:', pm.collectionVariables.get('sessionId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tableId\": \"{{tableId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/public/qr/session/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "qr", "session", "start"]
+            },
+            "description": "Customer scans QR code on table to start session"
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Initiate Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Customer initiated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.exist;",
+                  "});",
+                  "",
+                  "console.log('Customer initiated login');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"phone\": \"{{customerPhone}}\",\n  \"name\": \"Postman Customer\",\n  \"consentGiven\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/public/customer/initiate",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "customer", "initiate"]
+            },
+            "description": "Customer initiates login with phone number"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate OTP (Captain)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('OTP generated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.otp).to.exist;",
+                  "    pm.expect(jsonData.otp).to.match(/^\\d{6}$/);",
+                  "    pm.collectionVariables.set('otp', jsonData.otp);",
+                  "});",
+                  "",
+                  "console.log('OTP:', pm.collectionVariables.get('otp'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{captainToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"customerPhone\": \"{{customerPhone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/otp/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "otp", "generate"]
+            },
+            "description": "Captain generates OTP for customer"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Customer verified and got token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.collectionVariables.set('customerToken', jsonData.token);",
+                  "});",
+                  "",
+                  "console.log('Customer Token:', pm.collectionVariables.get('customerToken'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"phone\": \"{{customerPhone}}\",\n  \"otp\": \"{{otp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/public/customer/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "customer", "verify-otp"]
+            },
+            "description": "Customer verifies OTP and receives authentication token"
+          },
+          "response": []
+        },
+        {
+          "name": "Browse Menu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Menu has categories with items', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+                  "    pm.expect(jsonData[0].items).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Items have currency information', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var item = jsonData[0].items[0];",
+                  "    pm.expect(item.price).to.exist;",
+                  "    pm.expect(item.price.currency).to.exist;",
+                  "    pm.expect(item.price.symbol).to.exist;",
+                  "    pm.expect(item.price.formatted).to.exist;",
+                  "});",
+                  "",
+                  "console.log('Menu loaded with', JSON.parse(responseBody).length, 'categories');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/public/menu?sessionId={{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "menu"],
+              "query": [
+                {
+                  "key": "sessionId",
+                  "value": "{{sessionId}}"
+                }
+              ]
+            },
+            "description": "Customer browses menu with prices in branch currency. Requires customer authentication token. Returns 403 if session is CLOSED."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Menu Items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Menu items returned', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Items have required fields', function () {",
+                  "    var items = pm.response.json();",
+                  "    if (items.length > 0) {",
+                  "        var item = items[0];",
+                  "        pm.expect(item).to.have.property('id');",
+                  "        pm.expect(item).to.have.property('name');",
+                  "        pm.expect(item).to.have.property('price');",
+                  "        pm.expect(item).to.have.property('food_type');",
+                  "    }",
+                  "});",
+                  "",
+                  "console.log('Menu items:', pm.response.json().length);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/public/menu/items?sessionId={{sessionId}}&categoryId={{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "menu", "items"],
+              "query": [
+                {
+                  "key": "sessionId",
+                  "value": "{{sessionId}}",
+                  "description": "Required - Current session ID"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "{{categoryId}}",
+                  "description": "Optional - Filter by category",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get menu items for customer browsing. Requires customer authentication token and active session. Returns 403 if session is CLOSED. Can filter by categoryId."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Menu Item Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Item details returned', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.exist;",
+                  "    pm.expect(jsonData.id).to.exist;",
+                  "    pm.expect(jsonData.name).to.exist;",
+                  "});",
+                  "",
+                  "pm.test('Item has complete information', function () {",
+                  "    var item = pm.response.json();",
+                  "    pm.expect(item).to.have.property('description');",
+                  "    pm.expect(item).to.have.property('base_price');",
+                  "    pm.expect(item).to.have.property('food_type');",
+                  "    pm.expect(item).to.have.property('spice_level');",
+                  "});",
+                  "",
+                  "console.log('Item:', pm.response.json().name);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/public/menu/item/{{menuItem1Id}}?sessionId={{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "menu", "item", "{{menuItem1Id}}"],
+              "query": [
+                {
+                  "key": "sessionId",
+                  "value": "{{sessionId}}",
+                  "description": "Required - Current session ID"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific menu item. Requires customer authentication token and active session. Returns 403 if session is CLOSED. Useful for showing item details page."
+          },
+          "response": []
+        },
+        {
+          "name": "Place Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Order placed successfully', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.orderId).to.exist;",
+                  "    pm.expect(jsonData.totalAmount).to.exist;",
+                  "    pm.expect(jsonData.totalAmount.amount).to.exist;",
+                  "    pm.expect(jsonData.totalAmount.currency).to.exist;",
+                  "    pm.expect(jsonData.totalAmount.formatted).to.exist;",
+                  "    pm.collectionVariables.set('orderId', jsonData.orderId);",
+                  "});",
+                  "",
+                  "console.log('Order ID:', pm.collectionVariables.get('orderId'));",
+                  "var jsonData = pm.response.json();",
+                  "console.log('Total:', jsonData.totalAmount.formatted);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"menuItemId\": \"{{menuItem2Id}}\",\n      \"qty\": 2\n    },\n    {\n      \"menuItemId\": \"{{menuItem3Id}}\",\n      \"qty\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/public/order/place?sessionId={{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "order", "place"],
+              "query": [
+                {
+                  "key": "sessionId",
+                  "value": "{{sessionId}}"
+                }
+              ]
+            },
+            "description": "Customer places order. Total: 2x Chicken Wings (₹220) + 1x Egg Rolls (₹120) = ₹560"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Order details retrieved', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.orders).to.be.an('array');",
+                  "    pm.expect(jsonData.orders.length).to.be.greaterThan(0);",
+                  "    ",
+                  "    var order = jsonData.orders[0];",
+                  "    pm.expect(order.totalAmount).to.exist;",
+                  "    pm.expect(order.totalAmount.formatted).to.exist;",
+                  "    pm.expect(order.items).to.be.an('array');",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "console.log('Retrieved', jsonData.orders.length, 'order(s)');",
+                  "console.log('Order Total:', jsonData.orders[0].totalAmount.formatted);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/public/order?sessionId={{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "order"],
+              "query": [
+                {
+                  "key": "sessionId",
+                  "value": "{{sessionId}}"
+                }
+              ]
+            },
+            "description": "Customer retrieves order details with currency formatting"
+          },
+          "response": []
+        }
+      ],
+      "description": "Complete customer journey from QR scan to order placement"
+    },
+    {
+      "name": "6. Kitchen Flow",
+      "item": [
+        {
+          "name": "Kitchen Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Kitchen logged in', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.expect(jsonData.role).to.equal('KITCHEN');",
+                  "    pm.collectionVariables.set('kitchenToken', jsonData.token);",
+                  "});",
+                  "",
+                  "console.log('Kitchen Token:', pm.collectionVariables.get('kitchenToken'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman_kitchen\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "login"]
+            },
+            "description": "Kitchen staff authentication"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Kitchen Orders - PLACED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Orders response structure', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.orders).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Orders have PLACED status', function () {",
+                  "    var orders = pm.response.json().orders;",
+                  "    orders.forEach(function(order) {",
+                  "        pm.expect(order.status).to.equal('PLACED');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log('PLACED Orders:', pm.response.json().orders.length);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kitchenToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/kitchen/orders?status=PLACED",
+              "host": ["{{baseUrl}}"],
+              "path": ["kitchen", "orders"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PLACED"
+                }
+              ]
+            },
+            "description": "Get new orders that are PLACED and ready to be accepted by kitchen"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Kitchen Orders - PREPARING (Default)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Orders response structure', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.orders).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Orders have PREPARING status', function () {",
+                  "    var orders = pm.response.json().orders;",
+                  "    orders.forEach(function(order) {",
+                  "        pm.expect(order.status).to.equal('PREPARING');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log('PREPARING Orders:', pm.response.json().orders.length);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kitchenToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/kitchen/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["kitchen", "orders"]
+            },
+            "description": "Get orders currently being prepared (default view)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status - PREPARING",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Order status updated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('updated');",
+                  "    pm.expect(jsonData.newStatus).to.equal('PREPARING');",
+                  "});",
+                  "",
+                  "console.log('Order Status Updated:', pm.response.json().newStatus);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kitchenToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PREPARING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/kitchen/order/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["kitchen", "order", "{{orderId}}", "status"]
+            },
+            "description": "Kitchen accepts order and starts preparing"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status - READY",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Order marked as ready', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('updated');",
+                  "    pm.expect(jsonData.newStatus).to.equal('READY');",
+                  "});",
+                  "",
+                  "console.log('Order Ready for Pickup');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kitchenToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"READY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/kitchen/order/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["kitchen", "order", "{{orderId}}", "status"]
+            },
+            "description": "Kitchen marks order as ready for captain to serve"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status - COMPLETED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Order completed', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('updated');",
+                  "    pm.expect(jsonData.newStatus).to.equal('COMPLETED');",
+                  "});",
+                  "",
+                  "console.log('Order Completed');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kitchenToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/kitchen/order/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["kitchen", "order", "{{orderId}}", "status"]
+            },
+            "description": "Mark order as completed after serving to customer"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status - CANCELLED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Order cancelled', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('updated');",
+                  "    pm.expect(jsonData.newStatus).to.equal('CANCELLED');",
+                  "});",
+                  "",
+                  "console.log('Order Cancelled');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{kitchenToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CANCELLED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/kitchen/order/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["kitchen", "order", "{{orderId}}", "status"]
+            },
+            "description": "Cancel order if needed"
+          },
+          "response": []
+        }
+      ],
+      "description": "Kitchen staff workflow: View orders, update status from PLACED → PREPARING → READY → COMPLETED"
+    },
+    {
+      "name": "7. Session Management",
+      "item": [
+        {
+          "name": "End Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Session ended', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('ended');",
+                  "    pm.expect(jsonData.endedAt).to.exist;",
+                  "    pm.expect(jsonData.tableAvailable).to.equal(true);",
+                  "});",
+                  "",
+                  "pm.test('Duration calculated', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.durationMinutes).to.be.a('number');",
+                  "});",
+                  "",
+                  "console.log('Session Duration:', pm.response.json().durationMinutes, 'minutes');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{captainToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/captain/session/end",
+              "host": ["{{baseUrl}}"],
+              "path": ["captain", "session", "end"]
+            },
+            "description": "Captain/Admin ends session when customer pays and leaves. Sets status to CLOSED. Validates all orders are completed/cancelled. Now staff-only (moved from /public)."
+          },
+          "response": []
+        }
+      ],
+      "description": "Session lifecycle management - end sessions after payment"
+    },
+    {
+      "name": "8. Additional Admin & Utility",
+      "item": [
+        {
+          "name": "Get Active Tables (Captain)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Active tables retrieved', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.sessions).to.be.an('array');",
+                  "});",
+                  "",
+                  "console.log('Active tables:', JSON.parse(responseBody).sessions.length);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{captainToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/staff/active-tables",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "active-tables"]
+            },
+            "description": "Captain views active table sessions"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Menu Items by Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Items have currency', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0].price).to.exist;",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/menu/items?categoryId={{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "menu", "items"],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "{{categoryId}}"
+                }
+              ]
+            },
+            "description": "Get items for specific category with currency"
+          },
+          "response": []
+        }
+      ],
+      "description": "Additional endpoints for staff and admin operations"
+    }
+  ]
+}

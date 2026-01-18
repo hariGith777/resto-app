@@ -1,10 +1,24 @@
 import jwt from 'jsonwebtoken';
 import { db } from '../../common/db.js';
+import { validateSessionOpen } from '../../common/sessionValidator.js';
 
 export const handler = async ({ body }) => {
   try {
     const { sessionId, phone, otp } = JSON.parse(body || '{}');
     if (!sessionId || !phone || !otp) return { statusCode: 400, body: JSON.stringify({ error: 'sessionId, phone and otp required' }) };
+
+    // Validate session is OPEN
+    try {
+      await validateSessionOpen(sessionId);
+    } catch (error) {
+      if (error.message === 'SESSION_NOT_FOUND') {
+        return { statusCode: 404, body: JSON.stringify({ error: 'Session not found' }) };
+      }
+      if (error.message === 'SESSION_CLOSED') {
+        return { statusCode: 403, body: JSON.stringify({ error: 'Session is closed. Cannot verify OTP.' }) };
+      }
+      throw error;
+    }
 
     // fetch latest valid OTP request (existing schema uses otp_code)
     const r = await db.query('SELECT * FROM otp_requests WHERE session_id=$1 AND customer_phone=$2 AND verified_at IS NULL AND expires_at > now() ORDER BY created_at DESC LIMIT 1', [sessionId, phone]);

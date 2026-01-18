@@ -1,0 +1,51 @@
+FOLDER STRUCTURE CLEANUP - COMPLETED
+=====================================
+
+REMOVED FOLDERS:
+✓ src/handlers/ - Sample handler, not used in deployment
+✓ src/events/ - Sample event files, not used
+✓ src/libs/ - Consolidated into src/common/
+✓ test/ - Duplicate test directory
+✓ coverage/ - Test coverage artifacts
+
+REMOVED FILES:
+✓ src/admin/menu/createItem.js - Not used in serverless.yml
+✓ src/admin/menu/updateItem.js - Not used in serverless.yml
+✓ src/admin/menu/createModifier.js - Not used in serverless.yml
+✓ src/admin/menu/createPortion.js - Not used in serverless.yml
+
+ORGANIZED:
+✓ All *.md files → docs/ (except README.md)
+✓ All test-*.mjs files → tests/
+✓ check-admin-username.mjs → tests/
+✓ kitchen-display.mjs → tests/
+✓ test-websocket-kitchen.html → tests/
+✓ Postman_OTP_Flow.json → tests/
+
+CONSOLIDATED:
+✓ src/libs/db.js merged into src/common/db.js
+✓ Database connection now centralized in src/common/
+
+CURRENT STRUCTURE:
+resto-app/
+├── src/
+│   ├── admin/           # Restaurant admin endpoints
+│   ├── common/          # Shared utilities (auth, db, response)
+│   ├── kitchen/         # Kitchen staff endpoints
+│   ├── public/          # Public customer endpoints
+│   ├── staff/           # Staff authentication
+│   ├── super-admin/     # Platform admin endpoints
+│   └── websocket/       # Real-time updates
+├── db/                  # Database schema & migrations
+├── docs/                # All documentation (18 files)
+├── tests/               # All test files (26 files)
+├── scripts/             # Maintenance scripts
+└── [config files]       # serverless.yml, package.json, etc.
+
+BENEFITS:
+- Cleaner project structure
+- Easy to navigate
+- Removed duplicate/unused code
+- Documentation centralized
+- Tests organized
+- Deployment still works perfectly

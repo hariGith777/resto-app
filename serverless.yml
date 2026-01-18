@@ -1,27 +1,67 @@
 service: restaurant-platform-api
+
+plugins:
+  - serverless-esbuild
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    exclude: 
+      - '@aws-sdk/*'
+      - 'aws-sdk'
+    target: node20
+    platform: node
+    concurrency: 10
+    packager: npm
+    keepNames: true
+
 provider:
   name: aws
   runtime: nodejs20.x
   region: ap-south-1
   stage: dev
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
   environment:
     DATABASE_URL: ${env:DATABASE_URL}
     JWT_SECRET: ${env:JWT_SECRET}
     DB_SSL_CA: prod-ca-2021.crt
+    WEBSOCKET_API_ENDPOINT: 
+      Fn::Sub: 'https://${WebsocketsApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - 'execute-api:ManageConnections'
+          Resource:
+            - 'arn:aws:execute-api:*:*:*/@connections/*'
 package:
-  include: 
-    - prod-ca-2021.crt
-  exclude:
-    - .git/**
-    - .gitignore
-    - .env
-    - tests/**
-    - scripts/**
-    - db/**
-    - .md
-    - node_modules/.bin/**
-    - node_modules/serverless/**
-    - node_modules/.package-lock.json
+  individually: true
+  patterns:
+    - '!.git/**'
+    - '!.gitignore'
+    - '!.env'
+    - '!tests/**'
+    - '!scripts/**'
+    - '!db/**'
+    - '!*.md'
+    - '!node_modules/**'
+    - 'prod-ca-2021.crt'
 functions:
   # Health Check
   healthCheck:
@@ -33,7 +73,7 @@ functions:
 
   # Super Admin Authentication
   superAdminLogin:
-    handler: src/super-admin//login.handler
+    handler: src/super-admin/login.handler
     events:
       - httpApi:  
           path: /super-admin/login
@@ -45,6 +85,34 @@ functions:
       - httpApi:
           path: /super-admin/createRestaurant
           method: post
+  
+  getRestaurants:
+    handler: src/super-admin/getRestaurants.handler
+    events:
+      - httpApi:
+          path: /super-admin/restaurants
+          method: get
+  
+  updateRestaurant:
+    handler: src/super-admin/updateRestaurant.handler
+    events:
+      - httpApi:
+          path: /super-admin/restaurants/{id}
+          method: put
+  
+  createBranch:
+    handler: src/super-admin/createBranch.handler
+    events:
+      - httpApi:
+          path: /super-admin/createBranch
+          method: post
+  
+  updateBranch:
+    handler: src/super-admin/updateBranch.handler
+    events:
+      - httpApi:
+          path: /super-admin/branches/{id}
+          method: put
   
   # Staff Authentication
   staffLogin:
@@ -62,12 +130,27 @@ functions:
           path: /staff/active-tables
           method: get
   
+  # Captain - Orders
+  getCaptainOrders:
+    handler: src/captain/getOrders.handler
+    events:
+      - httpApi:
+          path: /captain/orders
+          method: get
+  
   # OTP Flow - Public Endpoints
   startSession:
     handler: src/public/qr/startSession.handler
     events:
       - httpApi:
           path: /public/qr/session/start
+          method: post
+  
+  endSession:
+    handler: src/captain/endSession.handler
+    events:
+      - httpApi:
+          path: /captain/session/end
           method: post
   
   initiateCustomer:
@@ -93,11 +176,11 @@ functions:
           method: post
   
   # Menu - Public Endpoints
-  getMenuCategories:
-    handler: src/public/menu/getCategories.handler
+  getMenu:
+    handler: src/public/menu/getMenu.handler
     events:
       - httpApi:
-          path: /public/menu/categories
+          path: /public/menu
           method: get
   
   getMenuItems:
@@ -105,6 +188,13 @@ functions:
     events:
       - httpApi:
           path: /public/menu/items
+          method: get
+  
+  getMenuItem:
+    handler: src/public/menu/getItem.handler
+    events:
+      - httpApi:
+          path: /public/menu/item/{itemId}
           method: get
   
   # Order - Public Endpoints
@@ -120,6 +210,9 @@ functions:
     events:
       - httpApi:
           path: /public/order/{orderId}
+          method: get
+      - httpApi:
+          path: /public/order
           method: get
   
   # Kitchen - Order Status Management
@@ -143,10 +236,138 @@ functions:
     events:
       - httpApi:
           path: /admin/areas
-          method: get  
+          method: get
+  
+  createArea:
+    handler: src/admin/areas/createArea.handler
+    events:
+      - httpApi:
+          path: /admin/areas
+          method: post
+  
+  updateArea:
+    handler: src/admin/areas/updateArea.handler
+    events:
+      - httpApi:
+          path: /admin/areas/{id}
+          method: put
+  
   getTables:
     handler: src/admin/tables/getTables.handler
     events:
       - httpApi:
           path: /admin/tables
           method: get
+  
+  createTable:
+    handler: src/admin/tables/createTable.handler
+    events:
+      - httpApi:
+          path: /admin/tables
+          method: post
+  
+  updateTable:
+    handler: src/admin/tables/updateTable.handler
+    events:
+      - httpApi:
+          path: /admin/tables/{id}
+          method: put
+  
+  getAdminMenuCategories:
+    handler: src/admin/menu/getCategories.handler
+    events:
+      - httpApi:
+          path: /admin/menu/categories
+          method: get
+  
+  createMenuCategory:
+    handler: src/admin/menu/createCategory.handler
+    events:
+      - httpApi:
+          path: /admin/menu/categories
+          method: post
+  
+  updateMenuCategory:
+    handler: src/admin/menu/updateCategory.handler
+    events:
+      - httpApi:
+          path: /admin/menu/categories/{id}
+          method: put
+  
+  getAdminMenuItems:
+    handler: src/admin/menu/getMenuItems.handler
+    events:
+      - httpApi:
+          path: /admin/menu/items
+          method: get
+  
+  createMenuItem:
+    handler: src/admin/menu/createMenuItem.handler
+    events:
+      - httpApi:
+          path: /admin/menu/items
+          method: post
+  
+  updateMenuItem:
+    handler: src/admin/menu/updateMenuItem.handler
+    events:
+      - httpApi:
+          path: /admin/menu/items/{id}
+          method: put
+  
+  generateMenuItemDescription:
+    handler: src/admin/menu/generateDescription.handler
+    events:
+      - httpApi:
+          path: /admin/menu/generate-description
+          method: post
+  
+  getStaff:
+    handler: src/admin/staff/getStaff.handler
+    events:
+      - httpApi:
+          path: /admin/staff
+          method: get
+  
+  suggestMenuItemTags:
+    handler: src/admin/menu/suggestTags.handler
+    events:
+      - httpApi:
+          path: /admin/menu/suggest-tags
+          method: post
+  
+  createStaff:
+    handler: src/admin/staff/createStaff.handler
+    events:
+      - httpApi:
+          path: /admin/staff
+          method: post
+  
+  updateStaff:
+    handler: src/admin/staff/updateStaff.handler
+    events:
+      - httpApi:
+          path: /admin/staff/{id}
+          method: put
+  
+  # WebSocket Handlers
+  wsConnect:
+    handler: src/websocket/connect.handler
+    events:
+      - websocket:
+          route: $connect
+  
+  wsDisconnect:
+    handler: src/websocket/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+
+resources:
+  Resources:
+    WebsocketsApi:
+      Type: AWS::ApiGatewayV2::Api
+      Properties:
+        Name: restaurant-platform-websocket
+        ProtocolType: WEBSOCKET
+        RouteSelectionExpression: "$request.body.action"

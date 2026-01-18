@@ -1,5 +1,6 @@
 import { db } from "../common/db.js";
 import { requireRole } from "../common/auth.js";
+import { broadcastToCaptain } from "../common/websocket.js";
 
 export const handler = async ({ pathParameters, body, headers }) => {
   try {
@@ -14,7 +15,7 @@ export const handler = async ({ pathParameters, body, headers }) => {
     }
 
     // Validate allowed status transitions
-    const validStatuses = ["READY", "COMPLETED", "CANCELLED"];
+    const validStatuses = ["PREPARING", "READY", "COMPLETED", "CANCELLED"];
     if (!validStatuses.includes(status)) {
       return {
         statusCode: 400,
@@ -59,14 +60,14 @@ export const handler = async ({ pathParameters, body, headers }) => {
 
       // Update order status
       await client.query(
-        `UPDATE orders SET status = $1 WHERE id = $2`,
+        `UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2`,
         [status, orderId]
       );
 
       // Update KOT status if it exists
       if (order.kot_id) {
         await client.query(
-          `UPDATE kots SET status = $1 WHERE id = $2`,
+          `UPDATE kots SET status = $1, updated_at = NOW() WHERE id = $2`,
           [status, order.kot_id]
         );
       }
@@ -95,9 +96,32 @@ export const handler = async ({ pathParameters, body, headers }) => {
 
       const tableInfo = tableRes.rowCount ? tableRes.rows[0] : null;
 
+      // Get branch_id for WebSocket broadcast
+      const branchRes = await client.query(
+        `SELECT b.id as branch_id
+         FROM table_sessions ts
+         JOIN tables t ON t.id = ts.table_id
+         JOIN areas a ON a.id = t.area_id
+         JOIN branches b ON b.id = a.branch_id
+         WHERE ts.id = $1`,
+        [order.session_id]
+      );
+      const branchId = branchRes.rows[0]?.branch_id;
+
       await client.query("COMMIT");
 
       console.log(`Order ${orderId} status updated to ${status}`);
+
+      // Broadcast status update to captain apps
+      if (branchId) {
+        await broadcastToCaptain(branchId, {
+          type: 'ORDER_STATUS_UPDATE',
+          orderId: updatedOrder.id,
+          status: updatedOrder.status,
+          table: tableInfo ? `${tableInfo.area_name} - Table ${tableInfo.table_number}` : null,
+          timestamp: new Date().toISOString()
+        });
+      }
 
       return {
         statusCode: 200,

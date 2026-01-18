@@ -1,0 +1,13 @@
+
+> resto-app@1.0.0 deploy
+> serverless deploy
+
+Environment: darwin, node 20.19.6, framework 3.39.0 (local), plugin 7.2.3, SDK 4.5.1
+Docs:        docs.serverless.com
+Support:     forum.serverless.com
+Bugs:        github.com/serverless/serverless/issues
+
+Error:
+Cannot resolve serverless.yml: Variables resolution errored with:
+  - Cannot resolve variable at "provider.environment.DATABASE_URL": Value not found at "env" source,
+  - Cannot resolve variable at "provider.environment.JWT_SECRET": Value not found at "env" source

@@ -150,7 +150,7 @@ FROM o JOIN mi ON o.rn = mi.rn;
 
 -- KOTS (5)
 INSERT INTO kots (id, order_id, status)
-SELECT uuid_generate_v4(), id, 'SENT' FROM orders ORDER BY created_at LIMIT 5;
+SELECT uuid_generate_v4(), id, 'PLACED' FROM orders ORDER BY created_at LIMIT 5;
 
 -- BILLS (5)
 INSERT INTO bills (id, order_id, subtotal, tax, service_charge, total)
