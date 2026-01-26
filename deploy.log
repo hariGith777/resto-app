@@ -1,13 +1,109 @@
 
-> resto-app@1.0.0 deploy
-> serverless deploy
+Deploying restaurant-platform-api to stage dev (ap-south-1)
 
-Environment: darwin, node 20.19.6, framework 3.39.0 (local), plugin 7.2.3, SDK 4.5.1
-Docs:        docs.serverless.com
-Support:     forum.serverless.com
-Bugs:        github.com/serverless/serverless/issues
+✔ Service deployed to stack restaurant-platform-api-dev (111s)
 
-Error:
-Cannot resolve serverless.yml: Variables resolution errored with:
-  - Cannot resolve variable at "provider.environment.DATABASE_URL": Value not found at "env" source,
-  - Cannot resolve variable at "provider.environment.JWT_SECRET": Value not found at "env" source
+endpoints:
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/health
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/login
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/createRestaurant
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/restaurants
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/restaurants/{id}
+  PUT - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/restaurants/{id}
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/createBranch
+  PUT - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/branches/{id}
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/login
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/staff/send-otp
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/staff/verify-otp
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/staff/active-tables
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/captain/orders
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/qr/session/start
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/captain/session/end
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/customer/initiate
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/customer/verify-otp
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/staff/otp/generate
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/menu
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/menu/items
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/menu/item/{itemId}
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/chat/message
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/chat/history
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/order/place
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/order/{orderId}
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/public/order
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/kitchen/orders
+  PATCH - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/kitchen/order/{orderId}/status
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/areas
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/areas
+  PUT - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/areas/{id}
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/tables
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/all-tables
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/tables
+  PUT - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/tables/{id}
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/super-admin/branches/{id}
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/categories
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/categories
+  PUT - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/categories/{id}
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/items
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/items
+  PUT - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/items/{id}
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/generate-description
+  GET - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/staff
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/menu/suggest-tags
+  POST - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/staff
+  PUT - https://c83055bt54.execute-api.ap-south-1.amazonaws.com/admin/staff/{id}
+  wss://a8ga9fssb2.execute-api.ap-south-1.amazonaws.com/dev
+functions:
+  healthCheck: restaurant-platform-api-dev-healthCheck (1.7 kB)
+  superAdminLogin: restaurant-platform-api-dev-superAdminLogin (41 kB)
+  createRestaurant: restaurant-platform-api-dev-createRestaurant (64 kB)
+  getRestaurants: restaurant-platform-api-dev-getRestaurants (63 kB)
+  getRestaurant: restaurant-platform-api-dev-getRestaurant (63 kB)
+  updateRestaurant: restaurant-platform-api-dev-updateRestaurant (63 kB)
+  createBranch: restaurant-platform-api-dev-createBranch (64 kB)
+  updateBranch: restaurant-platform-api-dev-updateBranch (63 kB)
+  adminLogin: restaurant-platform-api-dev-adminLogin (41 kB)
+  sendOtp: restaurant-platform-api-dev-sendOtp (41 kB)
+  verifyStaffOtp: restaurant-platform-api-dev-verifyStaffOtp (41 kB)
+  getActiveTables: restaurant-platform-api-dev-getActiveTables (63 kB)
+  getCaptainOrders: restaurant-platform-api-dev-getCaptainOrders (64 kB)
+  startSession: restaurant-platform-api-dev-startSession (35 kB)
+  endSession: restaurant-platform-api-dev-endSession (63 kB)
+  initiateCustomer: restaurant-platform-api-dev-initiateCustomer (35 kB)
+  verifyOtp: restaurant-platform-api-dev-verifyOtp (57 kB)
+  generateOtp: restaurant-platform-api-dev-generateOtp (63 kB)
+  getMenu: restaurant-platform-api-dev-getMenu (63 kB)
+  getMenuItems: restaurant-platform-api-dev-getMenuItems (63 kB)
+  getMenuItem: restaurant-platform-api-dev-getMenuItem (63 kB)
+  sendChatMessage: restaurant-platform-api-dev-sendChatMessage (38 kB)
+  getChatHistory: restaurant-platform-api-dev-getChatHistory (35 kB)
+  placeOrder: restaurant-platform-api-dev-placeOrder (64 kB)
+  getOrder: restaurant-platform-api-dev-getOrder (63 kB)
+  getKitchenOrders: restaurant-platform-api-dev-getKitchenOrders (63 kB)
+  updateOrderStatus: restaurant-platform-api-dev-updateOrderStatus (64 kB)
+  getAreas: restaurant-platform-api-dev-getAreas (63 kB)
+  createArea: restaurant-platform-api-dev-createArea (63 kB)
+  updateArea: restaurant-platform-api-dev-updateArea (63 kB)
+  getTables: restaurant-platform-api-dev-getTables (63 kB)
+  getAllTables: restaurant-platform-api-dev-getAllTables (63 kB)
+  createTable: restaurant-platform-api-dev-createTable (63 kB)
+  updateTable: restaurant-platform-api-dev-updateTable (63 kB)
+  getBranch: restaurant-platform-api-dev-getBranch (63 kB)
+  getAdminMenuCategories: restaurant-platform-api-dev-getAdminMenuCategories (64 kB)
+  createMenuCategory: restaurant-platform-api-dev-createMenuCategory (63 kB)
+  updateMenuCategory: restaurant-platform-api-dev-updateMenuCategory (63 kB)
+  getAdminMenuItems: restaurant-platform-api-dev-getAdminMenuItems (64 kB)
+  createMenuItem: restaurant-platform-api-dev-createMenuItem (64 kB)
+  updateMenuItem: restaurant-platform-api-dev-updateMenuItem (63 kB)
+  generateMenuItemDescription: restaurant-platform-api-dev-generateMenuItemDescription (63 kB)
+  getStaff: restaurant-platform-api-dev-getStaff (63 kB)
+  suggestMenuItemTags: restaurant-platform-api-dev-suggestMenuItemTags (63 kB)
+  createStaff: restaurant-platform-api-dev-createStaff (64 kB)
+  updateStaff: restaurant-platform-api-dev-updateStaff (63 kB)
+  wsConnect: restaurant-platform-api-dev-wsConnect (63 kB)
+  wsDisconnect: restaurant-platform-api-dev-wsDisconnect (35 kB)
+  cognitoDefineAuthChallenge: restaurant-platform-api-dev-cognitoDefineAuthChallenge (35 kB)
+  cognitoCreateAuthChallenge: restaurant-platform-api-dev-cognitoCreateAuthChallenge (35 kB)
+  cognitoVerifyAuthChallenge: restaurant-platform-api-dev-cognitoVerifyAuthChallenge (35 kB)
+  cognitoPreAuthentication: restaurant-platform-api-dev-cognitoPreAuthentication (35 kB)
+
+Improve API performance – monitor it with the Serverless Console: run "serverless --console"

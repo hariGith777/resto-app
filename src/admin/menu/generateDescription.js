@@ -15,7 +15,7 @@ export const handler = async (event) => {
       return { statusCode: 401, body: JSON.stringify({ error: 'Authorization token required' }) };
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     
     if (payload.role !== 'RESTAURANT_ADMIN') {
       return { statusCode: 403, body: JSON.stringify({ error: 'Admin access required' }) };

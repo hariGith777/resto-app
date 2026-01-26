@@ -13,7 +13,7 @@ export const handler = async ({ headers, queryStringParameters }) => {
 
     let payload;
     try {
-      payload = verifyToken(auth);
+      payload = await verifyToken(auth);
     } catch (e) {
       return { 
         statusCode: 401, 

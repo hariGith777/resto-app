@@ -17,7 +17,7 @@ export const handler = async (event) => {
     console.log('Token received, verifying...');
     
     // Verify staff authentication
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     console.log('Token verified:', { staffId: payload.staffId, role: payload.role, branchId: payload.branchId });
     
     // Store connection in database

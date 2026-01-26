@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Restaurant Platform - End-to-End Flow",
-    "description": "Complete flow from super admin login to customer order placement with currency support",
+    "name": "Restaurant Platform - End-to-End Flow (Cognito Auth)",
+    "description": "Complete E2E flow with AWS Cognito authentication: Super Admin (username/password), Restaurant Admin (username/password), Captain/Kitchen (Phone OTP), and Customer orders. Tests all authentication flows, role-based access control, and API endpoints.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -114,6 +114,31 @@
       "key": "superAdminUsername",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "captainOtpSession",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "kitchenOtpSession",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "captainPhone",
+      "value": "+918590488966",
+      "type": "string"
+    },
+    {
+      "key": "kitchenPhone",
+      "value": "+919876543212",
+      "type": "string"
+    },
+    {
+      "key": "kitchenToken",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -189,14 +214,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"{{superAdminUsername}}\"\n}"
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"TestPass123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/super-admin/login",
               "host": ["{{baseUrl}}"],
               "path": ["super-admin", "login"]
             },
-            "description": "Authenticate as super admin. Make sure to set superAdminUsername variable first."
+            "description": "Authenticate as super admin using Cognito username/password. Returns ID token with custom:role=SUPER_ADMIN."
           },
           "response": []
         },
@@ -244,14 +269,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman Test Restaurant\",\n  \"logoUrl\": \"https://example.com/logo.png\",\n  \"primaryColor\": \"#FF5733\",\n  \"secondaryColor\": \"#C70039\",\n  \"branches\": [\n    {\n      \"name\": \"Main Branch\",\n      \"address\": \"123 Test Street, City\",\n      \"country\": \"India\",\n      \"currencyCode\": \"INR\",\n      \"currencySymbol\": \"₹\",\n      \"timezone\": \"Asia/Kolkata\",\n      \"dateFormat\": \"DD/MM/YYYY\",\n      \"timeFormat\": \"12h\",\n      \"language\": \"en\",\n      \"phoneCountryCode\": \"+91\",\n      \"taxRate\": 5.0,\n      \"serviceChargeRate\": 10.0,\n      \"manager\": {\n        \"name\": \"Postman Manager\",\n        \"username\": \"postman_manager\",\n        \"phone\": \"+919876543210\"\n      }\n    }\n  ]\n}"
+              "raw": "{\n  \"name\": \"Postman Test Restaurant\",\n  \"logoUrl\": \"https://example.com/logo.png\",\n  \"primaryColor\": \"#FF5733\",\n  \"secondaryColor\": \"#C70039\",\n  \"branches\": [\n    {\n      \"name\": \"Main Branch\",\n      \"address\": \"123 Test Street, City\",\n      \"country\": \"India\",\n      \"currencyCode\": \"INR\",\n      \"currencySymbol\": \"₹\",\n      \"timezone\": \"Asia/Kolkata\",\n      \"dateFormat\": \"DD/MM/YYYY\",\n      \"timeFormat\": \"12h\",\n      \"language\": \"en\",\n      \"phoneCountryCode\": \"+91\",\n      \"taxRate\": 5.0,\n      \"serviceChargeRate\": 10.0,\n      \"manager\": {\n        \"name\": \"Postman Manager\",\n        \"username\": \"manager@postman-restaurant.com\",\n        \"phone\": \"+919876543210\",\n        \"password\": \"TestPass123!\"\n      }\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/super-admin/createRestaurant",
               "host": ["{{baseUrl}}"],
               "path": ["super-admin", "createRestaurant"]
             },
-            "description": "Create restaurant with branch and manager. Supports multi-currency."
+            "description": "Create restaurant with branch and manager. Manager password creates Cognito user for authentication. Password must be at least 8 characters with uppercase, lowercase, and number. Supports multi-currency."
           },
           "response": []
         },
@@ -295,14 +320,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"name\": \"Second Branch\",\n  \"address\": \"456 Another Street, City\",\n  \"country\": \"India\",\n  \"currencyCode\": \"INR\",\n  \"currencySymbol\": \"₹\",\n  \"timezone\": \"Asia/Kolkata\",\n  \"dateFormat\": \"DD/MM/YYYY\",\n  \"timeFormat\": \"12h\",\n  \"language\": \"en\",\n  \"phoneCountryCode\": \"+91\",\n  \"taxRate\": 5.0,\n  \"serviceChargeRate\": 10.0,\n  \"manager\": {\n    \"name\": \"Second Branch Manager\",\n    \"username\": \"manager_branch2\",\n    \"phone\": \"+919876543211\"\n  }\n}"
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"name\": \"Second Branch\",\n  \"address\": \"456 Another Street, City\",\n  \"country\": \"India\",\n  \"currencyCode\": \"INR\",\n  \"currencySymbol\": \"₹\",\n  \"timezone\": \"Asia/Kolkata\",\n  \"dateFormat\": \"DD/MM/YYYY\",\n  \"timeFormat\": \"12h\",\n  \"language\": \"en\",\n  \"phoneCountryCode\": \"+91\",\n  \"taxRate\": 5.0,\n  \"serviceChargeRate\": 10.0,\n  \"manager\": {\n    \"name\": \"Second Branch Manager\",\n    \"username\": \"manager2@postman-restaurant.com\",\n    \"phone\": \"+919876543211\",\n    \"password\": \"TestPass123!\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/super-admin/createBranch",
               "host": ["{{baseUrl}}"],
               "path": ["super-admin", "createBranch"]
             },
-            "description": "Super admin can add additional branches to existing restaurant"
+            "description": "Super admin can add additional branches to existing restaurant. Manager password creates Cognito user for authentication. Password must be at least 8 characters with uppercase, lowercase, and number."
           },
           "response": []
         },
@@ -464,6 +489,67 @@
               ]
             },
             "description": "Get list of all restaurants with pagination, search, and filtering. Returns restaurant details with branch and staff counts."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Restaurant Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has restaurant details', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.restaurant).to.exist;",
+                  "    pm.expect(jsonData.restaurant.id).to.exist;",
+                  "    pm.expect(jsonData.restaurant.name).to.exist;",
+                  "    pm.expect(jsonData.restaurant.stats).to.exist;",
+                  "    pm.expect(jsonData.restaurant.branches).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Restaurant has statistics', function () {",
+                  "    var stats = pm.response.json().restaurant.stats;",
+                  "    pm.expect(stats.branchCount).to.be.a('number');",
+                  "    pm.expect(stats.staffCount).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test('Branches have details', function () {",
+                  "    var branches = pm.response.json().restaurant.branches;",
+                  "    if (branches.length > 0) {",
+                  "        pm.expect(branches[0].id).to.exist;",
+                  "        pm.expect(branches[0].name).to.exist;",
+                  "        pm.expect(branches[0].currency).to.exist;",
+                  "        pm.expect(branches[0].stats).to.exist;",
+                  "    }",
+                  "});",
+                  "",
+                  "console.log('Restaurant:', pm.response.json().restaurant.name);",
+                  "console.log('Branches:', pm.response.json().restaurant.stats.branchCount);",
+                  "console.log('Total Staff:', pm.response.json().restaurant.stats.staffCount);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/restaurants/{{restaurantId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "restaurants", "{{restaurantId}}"]
+            },
+            "description": "Get complete restaurant details including name, logo, colors, activity status, statistics (branch count, staff count), and detailed list of all branches with their own statistics. Available for SUPER_ADMIN only."
           },
           "response": []
         }
@@ -881,6 +967,120 @@
             "description": "Get list of all staff members in the branch. Can filter by role."
           },
           "response": []
+        },
+        {
+          "name": "Get All Tables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has tables summary', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.totalTables).to.exist;",
+                  "    pm.expect(jsonData.occupiedTables).to.exist;",
+                  "    pm.expect(jsonData.availableTables).to.exist;",
+                  "    pm.expect(jsonData.tables).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Tables have session status', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.tables.length > 0) {",
+                  "        var table = jsonData.tables[0];",
+                  "        pm.expect(table).to.have.property('table_number');",
+                  "        pm.expect(table).to.have.property('capacity');",
+                  "        pm.expect(table).to.have.property('is_occupied');",
+                  "        pm.expect(table.is_occupied).to.be.a('boolean');",
+                  "    }",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "console.log('Total Tables:', jsonData.totalTables);",
+                  "console.log('Occupied:', jsonData.occupiedTables);",
+                  "console.log('Available:', jsonData.availableTables);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/all-tables",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "all-tables"]
+            },
+            "description": "Get all tables in the branch with their session status. Returns summary of total, occupied, and available tables along with detailed list showing is_occupied status and active order counts."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Branch Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has branch details', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.branch).to.exist;",
+                  "    pm.expect(jsonData.branch.id).to.exist;",
+                  "    pm.expect(jsonData.branch.name).to.exist;",
+                  "    pm.expect(jsonData.branch.currency).to.exist;",
+                  "    pm.expect(jsonData.branch.stats).to.exist;",
+                  "});",
+                  "",
+                  "pm.test('Branch has currency details', function () {",
+                  "    var branch = pm.response.json().branch;",
+                  "    pm.expect(branch.currency.code).to.exist;",
+                  "    pm.expect(branch.currency.symbol).to.exist;",
+                  "});",
+                  "",
+                  "pm.test('Branch has statistics', function () {",
+                  "    var stats = pm.response.json().branch.stats;",
+                  "    pm.expect(stats.staffCount).to.be.a('number');",
+                  "    pm.expect(stats.areaCount).to.be.a('number');",
+                  "    pm.expect(stats.tableCount).to.be.a('number');",
+                  "});",
+                  "",
+                  "console.log('Branch:', pm.response.json().branch.name);",
+                  "console.log('Currency:', pm.response.json().branch.currency.code);",
+                  "console.log('Stats:', JSON.stringify(pm.response.json().branch.stats));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/branches/{{branchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["super-admin", "branches", "{{branchId}}"]
+            },
+            "description": "Get complete branch details including name, address, currency settings, regional settings (timezone, date/time format, language), tax rates, restaurant information, and statistics (staff count, area count, table count). Available for RESTAURANT_ADMIN (own branch only) and SUPER_ADMIN (any branch)."
+          },
+          "response": []
         }
       ],
       "description": "Manager sets up areas, tables, and staff"
@@ -922,14 +1122,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"postman_manager\"\n}"
+              "raw": "{\n  \"username\": \"manager@postman-restaurant.com\",\n  \"password\": \"TestPass123!\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/staff/login",
+              "raw": "{{baseUrl}}/admin/login",
               "host": ["{{baseUrl}}"],
-              "path": ["staff", "login"]
+              "path": ["admin", "login"]
             },
-            "description": "Manager authentication"
+            "description": "Manager authentication using Cognito username/password. Returns ID token with custom:role=RESTAURANT_ADMIN, custom:branchId, custom:restaurantId, custom:staffId."
           },
           "response": []
         },
@@ -1523,7 +1723,7 @@
       "name": "4. Captain",
       "item": [
         {
-          "name": "Captain Login",
+          "name": "Captain Login - Send OTP",
           "event": [
             {
               "listen": "test",
@@ -1533,13 +1733,71 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Captain logged in', function () {",
+                  "pm.test('Response has session', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.session).to.exist;",
+                  "    pm.collectionVariables.set('captainOtpSession', jsonData.session);",
+                  "});",
+                  "",
+                  "console.log('⚠️  Check CloudWatch logs for OTP: /aws/lambda/restaurant-platform-api-dev-cognitoCreateAuthChallenge');",
+                  "console.log('    Search for: OTP generated for +918590488966');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+918590488966\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/send-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "send-otp"]
+            },
+            "description": "Captain authentication using Phone OTP (Cognito Custom Auth). Step 1: Send OTP to captain's phone. Check CloudWatch logs for the OTP code."
+          },
+          "response": []
+        },
+        {
+          "name": "Captain Login - Verify OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function () {",
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData.token).to.exist;",
-                  "    pm.expect(jsonData.role).to.equal('CAPTAIN');",
                   "    pm.collectionVariables.set('captainToken', jsonData.token);",
                   "});",
                   "",
+                  "pm.test('Role is CAPTAIN', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.staff.role).to.eql('CAPTAIN');",
+                  "});",
+                  "",
+                  "pm.test('Token is Cognito ID token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var tokenParts = jsonData.token.split('.');",
+                  "    pm.expect(tokenParts.length).to.eql(3);",
+                  "    var payload = JSON.parse(atob(tokenParts[1]));",
+                  "    pm.expect(payload.token_use).to.eql('id');",
+                  "    pm.expect(payload['custom:role']).to.eql('CAPTAIN');",
+                  "    pm.expect(payload['custom:staffId']).to.exist;",
+                  "});",
                   "console.log('Captain Token:', pm.collectionVariables.get('captainToken'));"
                 ],
                 "type": "text/javascript"
@@ -1556,14 +1814,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"postman_captain\"\n}"
+              "raw": "{\n  \"phone\": \"+918590488966\",\n  \"otp\": \"123456\",\n  \"session\": \"{{captainOtpSession}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/staff/login",
+              "raw": "{{baseUrl}}/staff/verify-otp",
               "host": ["{{baseUrl}}"],
-              "path": ["staff", "login"]
+              "path": ["staff", "verify-otp"]
             },
-            "description": "Captain authentication for OTP generation"
+            "description": "Captain authentication using Phone OTP (Cognito Custom Auth). Step 2: Verify OTP. Replace '123456' with actual OTP from CloudWatch logs. Returns ID token with custom:role=CAPTAIN."
           },
           "response": []
         },
@@ -2160,7 +2418,51 @@
       "name": "6. Kitchen Flow",
       "item": [
         {
-          "name": "Kitchen Login",
+          "name": "Kitchen Login - Send OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has session', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.session).to.exist;",
+                  "    pm.collectionVariables.set('kitchenOtpSession', jsonData.session);",
+                  "});",
+                  "",
+                  "console.log('⚠️  Check CloudWatch logs for Kitchen OTP');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919876543212\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff/send-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["staff", "send-otp"]
+            },
+            "description": "Kitchen staff authentication using Phone OTP (Cognito Custom Auth). Step 1: Send OTP. Replace phone with kitchen staff phone number."
+          },
+          "response": []
+        },
+        {
+          "name": "Kitchen Login - Verify OTP",
           "event": [
             {
               "listen": "test",
@@ -2173,8 +2475,16 @@
                   "pm.test('Kitchen logged in', function () {",
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData.token).to.exist;",
-                  "    pm.expect(jsonData.role).to.equal('KITCHEN');",
                   "    pm.collectionVariables.set('kitchenToken', jsonData.token);",
+                  "});",
+                  "",
+                  "pm.test('Token is Cognito ID token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var tokenParts = jsonData.token.split('.');",
+                  "    pm.expect(tokenParts.length).to.eql(3);",
+                  "    var payload = JSON.parse(atob(tokenParts[1]));",
+                  "    pm.expect(payload.token_use).to.eql('id');",
+                  "    pm.expect(payload['custom:role']).to.eql('KITCHEN');",
                   "});",
                   "",
                   "console.log('Kitchen Token:', pm.collectionVariables.get('kitchenToken'));"
@@ -2193,14 +2503,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"postman_kitchen\"\n}"
+              "raw": "{\n  \"phone\": \"+919876543212\",\n  \"otp\": \"123456\",\n  \"session\": \"{{kitchenOtpSession}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/staff/login",
+              "raw": "{{baseUrl}}/staff/verify-otp",
               "host": ["{{baseUrl}}"],
-              "path": ["staff", "login"]
+              "path": ["staff", "verify-otp"]
             },
-            "description": "Kitchen staff authentication"
+            "description": "Kitchen staff authentication using Phone OTP (Cognito Custom Auth). Step 2: Verify OTP. Replace '123456' with actual OTP from CloudWatch logs."
           },
           "response": []
         },

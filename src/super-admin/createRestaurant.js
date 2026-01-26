@@ -1,10 +1,11 @@
 import { db } from "../common/db.js";
 import { requireRole } from "../common/auth.js";
+import { createCognitoUser } from "../common/cognitoAuth.js";
 
 export const handler = async (event, _, { db: dbHelper }) => {
   try {
     const token = event.headers && (event.headers.authorization || event.headers.Authorization);
-    requireRole(token, 'SUPER_ADMIN');
+    await requireRole(token, 'SUPER_ADMIN');
 
     const { name, logoUrl, primaryColor, secondaryColor, branches } = JSON.parse(event.body);
 
@@ -52,12 +53,41 @@ export const handler = async (event, _, { db: dbHelper }) => {
 
           let managerId = null;
           if (branch.manager) {
+            // Validate manager credentials before creating
+            if (!branch.manager.username || !branch.manager.password) {
+              throw new Error(`Manager for branch "${branch.name}" must have both username and password`);
+            }
+
             const staffRes = await client.query(
               `INSERT INTO staff(branch_id,name,username,role,phone)
                VALUES($1,$2,$3,'RESTAURANT_ADMIN',$4) RETURNING id`,
               [branchId, branch.manager.name, branch.manager.username || null, branch.manager.phone || null]
             );
             managerId = staffRes.rows[0].id;
+
+            // Create Cognito user for restaurant admin - THIS IS CRITICAL
+            try {
+              const cognitoResult = await createCognitoUser({
+                username: branch.manager.username,
+                name: branch.manager.name,
+                password: branch.manager.password,
+                phone: branch.manager.phone || null,
+                role: 'RESTAURANT_ADMIN',
+                staffId: managerId,
+                branchId: branchId,
+                restaurantId: restaurantId
+              });
+
+              // HARD CHECK: Verify user was actually created in Cognito
+              if (!cognitoResult || !cognitoResult.success) {
+                throw new Error(`Failed to create Cognito user for manager: ${branch.manager.username}`);
+              }
+
+              console.log(`✓ Cognito user verified for manager: ${branch.manager.username}`);
+            } catch (cognitoError) {
+              console.error('CRITICAL: Failed to create Cognito user for manager:', cognitoError);
+              throw new Error(`Cognito user creation failed for ${branch.manager.username}: ${cognitoError.message}`);
+            }
           }
 
           createdBranches.push({ branchId, managerId });

@@ -1,20 +1,13 @@
 import { db } from "../common/db.js";
-import { verifyToken } from "../common/auth.js";
+import { requireRole } from "../common/auth.js";
 
-export const handler = async ({ pathParameters, body, headers }) => {
+export const handler = async (event) => {
   try {
-    const token = headers?.authorization || headers?.Authorization;
-    if (!token) {
-      return { statusCode: 401, body: JSON.stringify({ error: "Missing authorization" }) };
-    }
+    const token = event.headers?.authorization || event.headers?.Authorization;
+    await requireRole(token, 'SUPER_ADMIN');
 
-    const payload = verifyToken(token);
-    if (payload.role !== "SUPER_ADMIN") {
-      return { statusCode: 403, body: JSON.stringify({ error: "Super admin access required" }) };
-    }
-
-    const { id } = pathParameters;
-    const { name, address, currencyCode, currencySymbol, isActive } = JSON.parse(body || '{}');
+    const { id } = event.pathParameters;
+    const { name, address, currencyCode, currencySymbol, isActive } = JSON.parse(event.body || '{}');
 
     const updates = [];
     const values = [];

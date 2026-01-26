@@ -13,7 +13,7 @@ export const handler = async (event) => {
     // Verify kitchen staff token and get branch ID
     let staffInfo;
     try {
-      staffInfo = verifyToken(token);
+      staffInfo = await verifyToken(token);
       if (staffInfo.role !== "KITCHEN") {
         console.log(`Unauthorized connection attempt: ${staffInfo.role}`);
         return { statusCode: 403, body: "Unauthorized" };

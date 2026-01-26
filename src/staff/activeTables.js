@@ -9,7 +9,7 @@ export const handler = async ({ headers }) => {
       return { statusCode: 401, body: JSON.stringify({ error: 'Authorization token required' }) };
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     
     // Only staff with branch access can view active tables
     if (!payload.branchId) {

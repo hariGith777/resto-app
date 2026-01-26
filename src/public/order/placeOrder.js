@@ -20,7 +20,7 @@ export const handler = async ({ body, queryStringParameters, headers }) => {
     const token = headers?.authorization || headers?.Authorization;
     if (token) {
       try {
-        const payload = verifyToken(token);
+        const payload = await verifyToken(token);
         customerId = payload.customerId || null;
       } catch (error) {
         // Token invalid or missing - continue without customer_id (captain orders)

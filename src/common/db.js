@@ -34,6 +34,11 @@ pool.on('error', (err) => {
   console.error('Unexpected idle client error', err);
 });
 
+// Helper function to get a new connection (client) from the pool
+export const getConnection = async () => {
+  return pool;
+};
+
 export const query = (text, params) => pool.query(text, params);
 export const db = { pool, query };
 export default db;

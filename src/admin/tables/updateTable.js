@@ -8,7 +8,7 @@ export const handler = async ({ pathParameters, body, headers }) => {
       return { statusCode: 401, body: JSON.stringify({ error: "Missing authorization" }) };
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     if (!["ADMIN", "RESTAURANT_ADMIN"].includes(payload.role)) {
       return { statusCode: 403, body: JSON.stringify({ error: "Admin access required" }) };
     }

@@ -11,7 +11,7 @@ export const handler = async ({ headers, pathParameters, queryStringParameters }
     }
 
     try {
-      verifyToken(token);
+      await verifyToken(token);
     } catch (error) {
       return { statusCode: 401, body: JSON.stringify({ error: "Invalid or expired token" }) };
     }

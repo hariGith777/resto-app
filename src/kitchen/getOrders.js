@@ -11,7 +11,7 @@ export const handler = async ({ headers, queryStringParameters }) => {
 
     let staffInfo;
     try {
-      staffInfo = verifyToken(token);
+      staffInfo = await verifyToken(token);
       if (staffInfo.role !== "KITCHEN") {
         return { statusCode: 403, body: JSON.stringify({ error: "Insufficient permissions" }) };
       }

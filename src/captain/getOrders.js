@@ -14,7 +14,7 @@ export const handler = async ({ headers, queryStringParameters }) => {
       return { statusCode: 401, body: JSON.stringify({ error: 'Authorization token required' }) };
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     
     // Only CAPTAIN role can access
     if (payload.role !== 'CAPTAIN') {

@@ -9,7 +9,7 @@ export const handler = async ({ body, headers }) => {
       return { statusCode: 401, body: JSON.stringify({ error: 'Authorization token required' }) };
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     
     // Only RESTAURANT_ADMIN can create menu items
     if (payload.role !== 'RESTAURANT_ADMIN') {

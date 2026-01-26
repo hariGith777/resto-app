@@ -31,7 +31,7 @@ export const handler = async ({ body, headers }) => {
 
     let payload;
     try {
-      payload = verifyToken(token.replace('Bearer ', ''));
+      payload = await verifyToken(token.replace('Bearer ', ''));
     } catch (err) {
       return { 
         statusCode: 401, 

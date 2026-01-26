@@ -40,6 +40,9 @@ provider:
     DATABASE_URL: ${env:DATABASE_URL}
     JWT_SECRET: ${env:JWT_SECRET}
     DB_SSL_CA: prod-ca-2021.crt
+    COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID}
+    COGNITO_APP_CLIENT_ID: ${env:COGNITO_APP_CLIENT_ID}
+    COGNITO_REGION: ${env:COGNITO_REGION, 'ap-south-1'}
     WEBSOCKET_API_ENDPOINT: 
       Fn::Sub: 'https://${WebsocketsApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
   iam:
@@ -50,6 +53,15 @@ provider:
             - 'execute-api:ManageConnections'
           Resource:
             - 'arn:aws:execute-api:*:*:*/@connections/*'
+        - Effect: Allow
+          Action:
+            - 'cognito-idp:AdminInitiateAuth'
+            - 'cognito-idp:AdminCreateUser'
+            - 'cognito-idp:AdminSetUserPassword'
+            - 'cognito-idp:AdminUpdateUserAttributes'
+            - 'cognito-idp:AdminGetUser'
+          Resource:
+            - 'arn:aws:cognito-idp:${self:provider.region}:*:userpool/*'
 package:
   individually: true
   patterns:
@@ -93,6 +105,13 @@ functions:
           path: /super-admin/restaurants
           method: get
   
+  getRestaurant:
+    handler: src/super-admin/getRestaurant.handler
+    events:
+      - httpApi:
+          path: /super-admin/restaurants/{id}
+          method: get
+  
   updateRestaurant:
     handler: src/super-admin/updateRestaurant.handler
     events:
@@ -114,12 +133,27 @@ functions:
           path: /super-admin/branches/{id}
           method: put
   
-  # Staff Authentication
-  staffLogin:
-    handler: src/staff/login.handler
+  # Admin Authentication
+  adminLogin:
+    handler: src/admin/login.handler
     events:
       - httpApi:
-          path: /staff/login
+          path: /admin/login
+          method: post
+  
+  # Staff OTP Authentication
+  sendOtp:
+    handler: src/staff/sendOtp.handler
+    events:
+      - httpApi:
+          path: /staff/send-otp
+          method: post
+  
+  verifyStaffOtp:
+    handler: src/staff/verifyStaffOtp.handler
+    events:
+      - httpApi:
+          path: /staff/verify-otp
           method: post
   
   # Staff - Active Tables
@@ -259,6 +293,13 @@ functions:
           path: /admin/tables
           method: get
   
+  getAllTables:
+    handler: src/admin/tables/getAllTables.handler
+    events:
+      - httpApi:
+          path: /admin/all-tables
+          method: get
+  
   createTable:
     handler: src/admin/tables/createTable.handler
     events:
@@ -272,6 +313,13 @@ functions:
       - httpApi:
           path: /admin/tables/{id}
           method: put
+  
+  getBranch:
+    handler: src/super-admin/getBranch.handler
+    events:
+      - httpApi:
+          path: /super-admin/branches/{id}
+          method: get
   
   getAdminMenuCategories:
     handler: src/admin/menu/getCategories.handler
@@ -362,6 +410,23 @@ functions:
     events:
       - websocket:
           route: $disconnect
+  
+  # Cognito Lambda Triggers
+  cognitoDefineAuthChallenge:
+    handler: src/cognito-triggers/defineAuthChallenge.handler
+    description: Cognito trigger to define auth challenge flow
+  
+  cognitoCreateAuthChallenge:
+    handler: src/cognito-triggers/createAuthChallenge.handler
+    description: Cognito trigger to create OTP challenge
+  
+  cognitoVerifyAuthChallenge:
+    handler: src/cognito-triggers/verifyAuthChallenge.handler
+    description: Cognito trigger to verify OTP
+  
+  cognitoPreAuthentication:
+    handler: src/cognito-triggers/preAuthentication.handler
+    description: Cognito trigger to validate user before authentication
 
 resources:
   Resources:
